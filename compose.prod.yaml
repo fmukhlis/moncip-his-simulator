@@ -1,0 +1,15 @@
+services:
+  moncip-his:
+    container_name: moncip-his
+    build:
+      context: .
+      target: runner
+    restart: always
+    ports:
+      - 3000:3000
+#     networks:
+#       - default_network
+
+# networks:
+#   default_network:
+#     external: true

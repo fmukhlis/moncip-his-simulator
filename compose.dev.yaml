@@ -1,0 +1,29 @@
+services:
+  moncip-his:
+    container_name: moncip-his
+    build:
+      context: .
+      target: dev
+    env_file:
+      - .env
+      - .env.local
+    volumes:
+      - ./:/app
+      - pnpm-store:/pnpm/store
+    ports:
+      - 3000:3000
+
+  db:
+    image: postgres:17
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: moncip_his
+      POSTGRES_PASSWORD: moncip_his
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+
+volumes:
+  pnpm-store:
