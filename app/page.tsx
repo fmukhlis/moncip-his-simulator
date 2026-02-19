@@ -1,10 +1,16 @@
-import { Metadata } from "next"
-import { Button } from "components/Button/Button"
+import Link from "next/link"
+import GoogleIcon from "@/components/ui/google-icon"
 
-import { LP_GRID_ITEMS } from "lp-items"
+import { signIn } from "@/auth"
+import { Button } from "@/components/ui/button"
+import { roboto } from "@/lib/fonts"
+import { Spinner } from "@/components/ui/spinner"
+import { Metadata } from "next"
+import { HeaderLandingPage } from "@/components/landing-page/header-landing-page"
+import { FlipButton, FlipButtonBack, FlipButtonFront } from "@/components/animate-ui/components/buttons/flip"
 
 export const metadata: Metadata = {
-  title: "Next.js Enterprise Boilerplate",
+  title: "Moncip HIS-Simulator",
   twitter: {
     card: "summary_large_image",
   },
@@ -22,45 +28,45 @@ export const metadata: Metadata = {
 
 export default function Web() {
   return (
-    <>
-      <section className="bg-white dark:bg-gray-900">
-        <div className="mx-auto grid max-w-(--breakpoint-xl) px-4 py-8 text-center lg:py-16">
-          <div className="mx-auto place-self-center">
-            <h1 className="mb-4 max-w-2xl text-4xl leading-none font-extrabold tracking-tight md:text-5xl xl:text-6xl dark:text-white">
-              Next.js Enterprise Boilerplate
-            </h1>
-            <p className="mb-6 max-w-2xl font-light text-gray-500 md:text-lg lg:mb-8 lg:text-xl dark:text-gray-400">
-              Jumpstart your enterprise project with our feature-packed, high-performance Next.js boilerplate!
-              Experience rapid UI development, AI-powered code reviews, and an extensive suite of tools for a smooth and
-              enjoyable development process.
-            </p>
-            <Button href="https://github.com/Blazity/next-enterprise" className="mr-3">
-              Get started
-            </Button>
-            <Button
-              href="https://vercel.com/new/git/external?repository-url=https://github.com/Blazity/next-enterprise"
-              intent="secondary"
-            >
-              Deploy Now
-            </Button>
-          </div>
-        </div>
-      </section>
-      <section className="bg-white dark:bg-gray-900">
-        <div className="mx-auto max-w-(--breakpoint-xl) px-4 py-8 sm:py-16 lg:px-6">
-          <div className="justify-center space-y-8 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-3">
-            {LP_GRID_ITEMS.map((singleItem) => (
-              <div key={singleItem.title} className="flex flex-col items-center justify-center text-center">
-                <div className="bg-primary-100 dark:bg-primary-900 mb-4 flex size-10 items-center justify-center rounded-full p-1.5 text-blue-700 lg:size-12">
-                  {singleItem.icon}
+    <section className="bg-background relative h-screen">
+      <HeaderLandingPage />
+      <div className="m-auto grid h-[calc(100%-56px)] max-w-(--breakpoint-xl) px-4 py-8 text-center lg:py-16">
+        <div className="mx-auto place-self-center">
+          <h1 className="mb-6 max-w-2xl text-4xl leading-none font-extrabold tracking-tight md:text-5xl xl:text-6xl dark:text-white">
+            Moncip HIS-Simulator
+          </h1>
+          <p className="mb-6 max-w-2xl font-light text-gray-500 md:text-lg lg:mb-8 lg:text-xl dark:text-gray-400">
+            An app for simulating communication between <span className="font-semibold">HIS</span> and{" "}
+            <span className="font-semibold">LIS</span> using webhooks. This app is build with{" "}
+            <Button variant={"link"} className="p-0 text-base md:text-lg lg:text-xl" asChild>
+              <Link href="https://github.com/Blazity/next-enterprise" target="_blank" rel="noopener noreferrer">
+                next-enterprise
+              </Link>
+            </Button>{" "}
+            boilerplate.
+          </p>
+          <form
+            action={async () => {
+              "use server"
+              await signIn("google")
+            }}
+          >
+            <FlipButton type="submit" className="mr-3">
+              <FlipButtonFront className="w-full text-base font-bold" variant={"outline"} size={"google-spec"}>
+                Get Started
+              </FlipButtonFront>
+              <FlipButtonBack variant={"google-spec"} size={"google-spec"}>
+                <div className="flex items-center">
+                  <div className="mr-[10px] h-[25px] w-[25px]">
+                    {false ? <Spinner className="size-[25px]" /> : <GoogleIcon />}
+                  </div>
+                  <span className={`${roboto.className}`}>Sign in with Google</span>
                 </div>
-                <h3 className="mb-2 text-xl font-bold dark:text-white">{singleItem.title}</h3>
-                <p className="text-gray-500 dark:text-gray-400">{singleItem.description}</p>
-              </div>
-            ))}
-          </div>
+              </FlipButtonBack>
+            </FlipButton>
+          </form>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   )
 }
