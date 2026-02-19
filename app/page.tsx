@@ -38,11 +38,14 @@ export default function Web() {
           <p className="mb-6 max-w-2xl font-light text-gray-500 md:text-lg lg:mb-8 lg:text-xl dark:text-gray-400">
             An app for simulating communication between <span className="font-semibold">HIS</span> and{" "}
             <span className="font-semibold">LIS</span> using webhooks. This app is build with{" "}
-            <Button variant={"link"} className="p-0 text-base md:text-lg lg:text-xl" asChild>
-              <Link href="https://github.com/Blazity/next-enterprise" target="_blank" rel="noopener noreferrer">
-                next-enterprise
-              </Link>
-            </Button>{" "}
+            <Link
+              href="https://github.com/Blazity/next-enterprise"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary p-0 text-base font-medium underline-offset-4 hover:underline md:text-lg lg:text-xl"
+            >
+              next-enterprise
+            </Link>{" "}
             boilerplate.
           </p>
           <form

@@ -33,7 +33,7 @@ export function HeaderLandingPage() {
                 <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                   <Link
                     className="flex items-center py-5 !text-sm"
-                    href="https://github.com/fmukhlis/moncip-his-simulator"
+                    href="https://github.com/fmukhlis/moncip-lis"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
