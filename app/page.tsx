@@ -1,12 +1,13 @@
 import Link from "next/link"
 import GoogleIcon from "@/components/ui/google-icon"
 
-import { signIn } from "@/auth"
+import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { roboto } from "@/lib/fonts"
 import { Spinner } from "@/components/ui/spinner"
 import { Metadata } from "next"
 import { HeaderLandingPage } from "@/components/landing-page/header-landing-page"
+import { auth, signIn, signOut } from "@/auth"
 import { FlipButton, FlipButtonBack, FlipButtonFront } from "@/components/animate-ui/components/buttons/flip"
 
 export const metadata: Metadata = {
@@ -26,9 +27,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default function Web() {
+export default async function Web() {
+  const session = await auth()
+
   return (
-    <section className="bg-background relative h-screen">
+    <section className="bg-background relative mx-auto h-screen max-w-6xl">
       <HeaderLandingPage />
       <div className="m-auto grid h-[calc(100%-56px)] max-w-(--breakpoint-xl) px-4 py-8 text-center lg:py-16">
         <div className="mx-auto place-self-center">
@@ -48,26 +51,42 @@ export default function Web() {
             </Link>{" "}
             boilerplate.
           </p>
-          <form
-            action={async () => {
-              "use server"
-              await signIn("google")
-            }}
-          >
-            <FlipButton type="submit" className="mr-3">
-              <FlipButtonFront className="w-full text-base font-bold" variant={"outline"} size={"google-spec"}>
-                Get Started
-              </FlipButtonFront>
-              <FlipButtonBack variant={"google-spec"} size={"google-spec"}>
-                <div className="flex items-center">
-                  <div className="mr-[10px] h-[25px] w-[25px]">
-                    {false ? <Spinner className="size-[25px]" /> : <GoogleIcon />}
-                  </div>
-                  <span className={`${roboto.className}`}>Sign in with Google</span>
+          {session?.user ? (
+            <form
+              action={async () => {
+                "use server"
+                await signOut()
+              }}
+            >
+              <Button variant={"destructive"} size={"lg"} type="submit" className="p-5">
+                <div className="flex items-center gap-2 text-base">
+                  <LogOut className="size-5" />
+                  Sign Out
                 </div>
-              </FlipButtonBack>
-            </FlipButton>
-          </form>
+              </Button>
+            </form>
+          ) : (
+            <form
+              action={async () => {
+                "use server"
+                await signIn("google", { redirectTo: "/auth" })
+              }}
+            >
+              <FlipButton type="submit" className="mr-3">
+                <FlipButtonFront className="w-full text-base font-bold" variant={"outline"} size={"google-spec"}>
+                  Get Started
+                </FlipButtonFront>
+                <FlipButtonBack variant={"google-spec"} size={"google-spec"}>
+                  <div className="flex items-center">
+                    <div className="mr-[10px] h-[25px] w-[25px]">
+                      {false ? <Spinner className="size-[25px]" /> : <GoogleIcon />}
+                    </div>
+                    <span className={`${roboto.className}`}>Sign in with Google</span>
+                  </div>
+                </FlipButtonBack>
+              </FlipButton>
+            </form>
+          )}
         </div>
       </div>
     </section>
