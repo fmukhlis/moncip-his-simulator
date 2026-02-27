@@ -1,31 +1,11 @@
 import Link from "next/link"
-import GoogleIcon from "@/components/ui/google-icon"
+import SignInButton from "@/components/landing-page/sign-in-button"
+import SignOutButton from "@/components/landing-page/sign-out-button"
 
-import { LogOut } from "lucide-react"
+import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
-import { roboto } from "@/lib/fonts"
-import { Spinner } from "@/components/ui/spinner"
-import { Metadata } from "next"
+import { MoveRight } from "lucide-react"
 import { HeaderLandingPage } from "@/components/landing-page/header-landing-page"
-import { auth, signIn, signOut } from "@/auth"
-import { FlipButton, FlipButtonBack, FlipButtonFront } from "@/components/animate-ui/components/buttons/flip"
-
-export const metadata: Metadata = {
-  title: "Moncip HIS-Simulator",
-  twitter: {
-    card: "summary_large_image",
-  },
-  openGraph: {
-    url: "https://next-enterprise.vercel.app/",
-    images: [
-      {
-        width: 1200,
-        height: 630,
-        url: "https://raw.githubusercontent.com/Blazity/next-enterprise/main/.github/assets/project-logo.png",
-      },
-    ],
-  },
-}
 
 export default async function Web() {
   const session = await auth()
@@ -52,40 +32,22 @@ export default async function Web() {
             boilerplate.
           </p>
           {session?.user ? (
-            <form
-              action={async () => {
-                "use server"
-                await signOut()
-              }}
-            >
-              <Button variant={"destructive"} size={"lg"} type="submit" className="p-5">
-                <div className="flex items-center gap-2 text-base">
-                  <LogOut className="size-5" />
-                  Sign Out
-                </div>
+            <div className="flex flex-col items-center">
+              <Button
+                type="submit"
+                size={"lg"}
+                variant={"outline"}
+                className="mb-3 flex items-center gap-2 p-5 text-base"
+                asChild
+              >
+                <Link href={"/auth/dashboard"}>
+                  Go to Dashboard <MoveRight className="size-5" />
+                </Link>
               </Button>
-            </form>
+              <SignOutButton />
+            </div>
           ) : (
-            <form
-              action={async () => {
-                "use server"
-                await signIn("google", { redirectTo: "/auth" })
-              }}
-            >
-              <FlipButton type="submit" className="mr-3">
-                <FlipButtonFront className="w-full text-base font-bold" variant={"outline"} size={"google-spec"}>
-                  Get Started
-                </FlipButtonFront>
-                <FlipButtonBack variant={"google-spec"} size={"google-spec"}>
-                  <div className="flex items-center">
-                    <div className="mr-[10px] h-[25px] w-[25px]">
-                      {false ? <Spinner className="size-[25px]" /> : <GoogleIcon />}
-                    </div>
-                    <span className={`${roboto.className}`}>Sign in with Google</span>
-                  </div>
-                </FlipButtonBack>
-              </FlipButton>
-            </form>
+            <SignInButton />
           )}
         </div>
       </div>
