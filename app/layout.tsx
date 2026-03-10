@@ -1,5 +1,8 @@
 import "@/styles/tailwind.css"
 
+import React from "react"
+import Providers from "./providers"
+
 import { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -23,9 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <TooltipProvider>{children}</TooltipProvider>
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <TooltipProvider>{children}</TooltipProvider>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )

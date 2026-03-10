@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import GithubIcon from "../ui/github-icon"
+import ThemeToggler from "../theme-toggler"
 
 import { Button } from "../ui/button"
 import { useTheme } from "next-themes"
@@ -59,17 +60,7 @@ export function HeaderLandingPage() {
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-          <Button
-            className=""
-            variant={"ghost"}
-            onClick={() => {
-              setTheme(theme === "dark" ? "light" : "dark")
-            }}
-          >
-            <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <ThemeToggler />
         </div>
       </div>
     </header>

@@ -4,7 +4,6 @@ import Link from "next/link"
 import React from "react"
 
 import { usePathname } from "next/navigation"
-import { BREADCRUMB_DATA } from "@/lib/navigation-data"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,10 +13,19 @@ import {
   BreadcrumbSeparator,
 } from "./ui/breadcrumb"
 
-export default function AppBreadcrumb() {
+export default function AppBreadcrumb({
+  breadcrumbData,
+}: {
+  breadcrumbData: {
+    [k: string]: {
+      url: string
+      title: string
+    }[]
+  }
+}) {
   const pathname = usePathname()
 
-  const crumbs = BREADCRUMB_DATA[pathname] ?? []
+  const crumbs = breadcrumbData[pathname] ?? []
 
   return (
     <Breadcrumb>

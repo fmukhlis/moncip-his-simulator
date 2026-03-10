@@ -27,6 +27,8 @@ model User {
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  patients          Patient[]
 }
  
 model Account {
@@ -110,7 +112,8 @@ enum EncounterStatus {
 
 model Patient {
   id                String            @id @default(cuid(2))
-  mrn               String            @unique
+  userId            String
+  mrnNumber         Int               @unique @default(autoincrement())
   nationalId        String?           @unique
   
   sex               PatientSex
@@ -125,6 +128,7 @@ model Patient {
   updatedAt         DateTime          @updatedAt
   deletedAt         DateTime?
 
+  user              User              @relation(fields: [userId], references: [id])
   encounters        Encounter[]
 }
 

@@ -1,20 +1,18 @@
-import * as React from "react"
-
-import { NavMain } from "@/components/nav-main"
+import { DATA } from "@/lib/navigation-data"
 import { NavUser } from "@/components/nav-user"
+import { SideNav } from "./side-nav"
 import { SidebarLogo } from "@/components/sidebar-logo"
-import { NavOperations } from "./nav-operations"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function GlobalSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
-        <NavOperations />
+        <SideNav data={DATA.main} />
+        <SideNav data={DATA.operations} label="Operations" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
