@@ -3,7 +3,7 @@ import PatientCardSidebar from "./patient-card-sidebar"
 import { NavUser } from "./nav-user"
 import { SideNav } from "./side-nav"
 import { DataProps } from "@/lib/navigation-data"
-import { SidebarLogo } from "@/components/sidebar-logo"
+import { PatientSidebarHeader } from "./patient-sidebar-header"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 
 export async function PatientContextSidebar({
@@ -13,7 +13,7 @@ export async function PatientContextSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarLogo />
+        <PatientSidebarHeader />
         <PatientCardSidebar />
       </SidebarHeader>
       <SidebarContent>

@@ -7,9 +7,9 @@ import { DataProps } from "@/lib/navigation-data"
 import { Separator } from "@/components/ui/separator"
 import { getQueryClient } from "@/app/get-query-client"
 import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
-import { getPatientOverview } from "@/features/patient-context/dals/query"
 import { PatientContextSidebar } from "@/components/patient-context-sidebar"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+import { getPatientOverviewActionOptions } from "@/features/patient-context/api/query"
 import { LayoutGrid, NotepadText, ScrollText } from "lucide-react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
@@ -36,10 +36,7 @@ export default async function PatientContextLayout({
   const BREADCRUMB_DATA = Object.fromEntries(generateBreadcrumb(Object.values(DATA)))
 
   const queryClient = getQueryClient()
-  const patient = await queryClient.fetchQuery({
-    queryKey: ["patient", patientId],
-    queryFn: () => getPatientOverview({ patientId }),
-  })
+  const patient = await queryClient.fetchQuery(getPatientOverviewActionOptions(patientId))
 
   if (!patient) {
     notFound()
