@@ -3,7 +3,7 @@ import { getPatientOverviewAction } from "../actions/query"
 
 export const getPatientOverviewActionOptions = (patientId: string) =>
   queryOptions({
-    queryKey: ["patient", patientId],
+    queryKey: ["patients", patientId, "overview"],
     queryFn: async () => {
       const response = await getPatientOverviewAction({ patientId })
       return response.data

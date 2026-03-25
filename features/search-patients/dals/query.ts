@@ -30,6 +30,7 @@ export async function searchPatients({
           fullName: true,
           mrnNumber: true,
           birthDate: true,
+          nationalId: true,
           encounters: {
             where: { status: "ACTIVE" },
             select: { id: true },
