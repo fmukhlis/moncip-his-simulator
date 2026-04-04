@@ -8,7 +8,6 @@ export const getSearchPatientsActionOptions = (params: z.input<typeof SearchPati
   queryOptions({
     queryKey: ["patients", "search", params],
     queryFn: async () => {
-      console.log(params)
       const response = await searchPatientsAction(params)
       return response
     },

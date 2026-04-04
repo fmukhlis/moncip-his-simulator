@@ -8,7 +8,7 @@ import { GetPatientOverviewSchema } from "../schema"
 export async function getPatientOverview({ patientId }: z.infer<typeof GetPatientOverviewSchema>) {
   const [patient, activeEncounter, lastEncounter] = await prisma.$transaction([
     prisma.patient.findUnique({
-      where: { id: patientId },
+      where: { id: patientId, deletedAt: null },
       select: {
         id: true,
         sex: true,
@@ -18,6 +18,7 @@ export async function getPatientOverview({ patientId }: z.infer<typeof GetPatien
         fullName: true,
         mrnNumber: true,
         birthDate: true,
+        nationalId: true,
       },
     }),
     prisma.encounter.findFirst({
@@ -25,14 +26,13 @@ export async function getPatientOverview({ patientId }: z.infer<typeof GetPatien
         patientId,
         status: "ACTIVE",
       },
-      orderBy: { startDate: "desc" },
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         status: true,
-        endDate: true,
-        startDate: true,
         department: true,
         encounterType: true,
+        encounterDateTime: true,
       },
     }),
     prisma.encounter.findFirst({
@@ -40,14 +40,13 @@ export async function getPatientOverview({ patientId }: z.infer<typeof GetPatien
         patientId,
         status: { in: ["COMPLETED", "CANCELLED"] },
       },
-      orderBy: { startDate: "desc" },
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         status: true,
-        endDate: true,
-        startDate: true,
         department: true,
         encounterType: true,
+        encounterDateTime: true,
       },
     }),
 

@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { ArrowLeft, House } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 
 export function PatientSidebarHeader() {
@@ -9,7 +9,7 @@ export function PatientSidebarHeader() {
       <SidebarMenuItem>
         <SidebarMenuButton size="lg" className="pl-0" asChild>
           <Link href={"/auth/search-patients"} className="flex items-center !gap-0">
-            <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center">
+            <div className="text-sidebar-foreground flex aspect-square size-8 items-center justify-center">
               <ArrowLeft />
             </div>
             <div className="mb-0.5 grid flex-1 text-left text-sm leading-tight">

@@ -36,9 +36,10 @@ export default async function PatientContextLayout({
   const BREADCRUMB_DATA = Object.fromEntries(generateBreadcrumb(Object.values(DATA)))
 
   const queryClient = getQueryClient()
-  const patient = await queryClient.fetchQuery(getPatientOverviewActionOptions(patientId))
 
-  if (!patient) {
+  try {
+    await queryClient.prefetchQuery(getPatientOverviewActionOptions(patientId))
+  } catch (error) {
     notFound()
   }
 

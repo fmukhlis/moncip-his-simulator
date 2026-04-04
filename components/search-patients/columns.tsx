@@ -6,9 +6,24 @@ import { Button } from "../ui/button"
 import { parseISO } from "date-fns"
 import { formatAge } from "@/lib/utils"
 import { searchPatientsAction } from "@/features/search-patients/actions/query"
-import { SquareArrowOutUpRight } from "lucide-react"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { Mars, SquareArrowOutUpRight, Venus } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+
+const GENDER_LABEL = {
+  M: (
+    <div className="flex items-center justify-center gap-1">
+      <Mars className="size-4" />
+      Male
+    </div>
+  ),
+  F: (
+    <div className="flex items-center justify-center gap-1">
+      <Venus className="size-4" />
+      Female
+    </div>
+  ),
+}
 
 const columnHelper = createColumnHelper<Awaited<ReturnType<typeof searchPatientsAction>>["data"][number]>()
 
@@ -24,7 +39,7 @@ export const columns = [
   }),
   columnHelper.accessor("sex", {
     header: () => <div className="w-full px-1.5 text-center">Sex</div>,
-    cell: ({ getValue }) => <div className="w-full px-1.5 text-center">{getValue()}</div>,
+    cell: ({ getValue }) => <div className="w-full px-1.5 text-center">{GENDER_LABEL[getValue()]}</div>,
   }),
   columnHelper.accessor("birthDate", {
     header: () => <div className="w-full px-1.5 text-center">Age</div>,
