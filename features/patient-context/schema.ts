@@ -4,9 +4,9 @@ import { CreatePatientSchema } from "../registration/schema"
 // #######################################################################
 // ########################## GetPatientOverview #########################
 
-export const GetPatientOverviewSchema = z.object({ patientId: z.string().cuid2() })
+export const GetPatientOverviewSchema = z.object({ patientId: z.string().cuid2(), userId: z.string().cuid2() })
 
-export const GetPatientOverviewActionSchema = GetPatientOverviewSchema
+export const GetPatientOverviewActionSchema = GetPatientOverviewSchema.omit({ userId: true })
 
 // #######################################################################
 // ############################## UpdatePatient ##########################

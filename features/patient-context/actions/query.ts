@@ -5,7 +5,7 @@ import { auth } from "@/auth"
 import { getPatientOverview } from "../dals/query"
 import { GetPatientOverviewActionSchema } from "../schema"
 
-export async function getPatientOverviewAction(params: z.input<typeof GetPatientOverviewActionSchema>) {
+export async function getPatientOverviewAction(params: z.infer<typeof GetPatientOverviewActionSchema>) {
   // Authentication
   const session = await auth()
   if (!session || !session.user || !session.user.id) {
@@ -21,7 +21,7 @@ export async function getPatientOverviewAction(params: z.input<typeof GetPatient
   const { patientId } = parsedData.data
 
   // DAL
-  const queryResponse = await getPatientOverview({ patientId })
+  const queryResponse = await getPatientOverview({ patientId, userId: session.user.id })
 
   if (!queryResponse) {
     throw new Error("Patient not found.")

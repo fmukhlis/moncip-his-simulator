@@ -38,7 +38,7 @@ export default async function PatientContextLayout({
   const queryClient = getQueryClient()
 
   try {
-    await queryClient.prefetchQuery(getPatientOverviewActionOptions(patientId))
+    await queryClient.fetchQuery(getPatientOverviewActionOptions(patientId))
   } catch (error) {
     notFound()
   }

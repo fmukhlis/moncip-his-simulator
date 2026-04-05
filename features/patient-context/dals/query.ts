@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma"
 import { formatISO } from "date-fns"
 import { GetPatientOverviewSchema } from "../schema"
 
-export async function getPatientOverview({ patientId }: z.infer<typeof GetPatientOverviewSchema>) {
+export async function getPatientOverview({ patientId, userId }: z.infer<typeof GetPatientOverviewSchema>) {
   const [patient, activeEncounter, lastEncounter] = await prisma.$transaction([
     prisma.patient.findUnique({
-      where: { id: patientId, deletedAt: null },
+      where: { id: patientId, userId, deletedAt: null },
       select: {
         id: true,
         sex: true,
