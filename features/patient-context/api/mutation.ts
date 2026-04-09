@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { getQueryClient } from "@/app/get-query-client"
 import { mutationOptions } from "@tanstack/react-query"
-import { deletePatientAction, updatePatientAction } from "../actions/mutation"
-import { DeletePatientActionSchema, UpdatePatientFormSchema } from "../schema"
+import { createEncounterAction, deletePatientAction, updatePatientAction } from "../actions/mutation"
+import { CreateEncounterActionSchema, DeletePatientActionSchema, UpdatePatientFormSchema } from "../schema"
 
 export const getUpdatePatientActionOptions = () =>
   mutationOptions({
@@ -35,6 +35,24 @@ export const getDeletePatientActionOptions = () =>
         }),
         getQueryClient().invalidateQueries({
           queryKey: ["patients", id, "overview"],
+        }),
+      ])
+    },
+  })
+
+export const getCreateEncounterActionOptions = () =>
+  mutationOptions({
+    mutationFn: async (params: z.infer<typeof CreateEncounterActionSchema>) => {
+      const response = await createEncounterAction(params)
+      return response
+    },
+    onSuccess: async ({ patientId }) => {
+      Promise.all([
+        getQueryClient().invalidateQueries({
+          queryKey: ["patients", patientId, "overview"],
+        }),
+        getQueryClient().invalidateQueries({
+          queryKey: ["patients", patientId, "encounters", "create"],
         }),
       ])
     },

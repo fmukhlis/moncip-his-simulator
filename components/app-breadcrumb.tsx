@@ -3,7 +3,6 @@
 import Link from "next/link"
 import React from "react"
 
-import { usePathname } from "next/navigation"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,20 +11,40 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb"
+import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
+import { useParams, usePathname } from "next/navigation"
+import { LayoutGrid, NotepadText, ScrollText } from "lucide-react"
 
-export default function AppBreadcrumb({
-  breadcrumbData,
-}: {
-  breadcrumbData: {
-    [k: string]: {
-      url: string
-      title: string
-    }[]
-  }
-}) {
+export default function AppBreadcrumb() {
+  const { patientId, encounterId } = useParams<{ patientId: string; encounterId: string }>()
+
   const pathname = usePathname()
 
-  const crumbs = breadcrumbData[pathname] ?? []
+  const BREADCRUMB_DATA = Object.fromEntries(
+    generateBreadcrumb([
+      [
+        { title: "Overview", url: `/auth/patients/${patientId}/overview`, icon: <LayoutGrid /> },
+        {
+          title: "Encounters",
+          url: `/auth/patients/${patientId}/encounters`,
+          icon: <ScrollText />,
+        },
+        { title: "Lab. Orders", url: `/auth/patients/${patientId}/lab-orders`, icon: <NotepadText /> },
+        { title: "Edit Patient", url: `/auth/patients/${patientId}/overview/edit`, icon: <></> },
+        {
+          title: "List",
+          url: `/auth/patients/${patientId}/encounters`,
+          icon: <></>,
+          items: [
+            { title: "Details", url: `/auth/patients/${patientId}/encounters/${encounterId}` },
+            { title: "Create Encounter", url: `/auth/patients/${patientId}/encounters/create` },
+          ],
+        },
+      ],
+    ])
+  )
+
+  const crumbs = BREADCRUMB_DATA[pathname] ?? []
 
   return (
     <Breadcrumb>

@@ -9,7 +9,7 @@ export default async function PatientOverview({ params }: { params: Promise<{ pa
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       <PatientSnapshot patientId={patientId} />
-      <ActiveEncounter />
+      <ActiveEncounter patientId={patientId} />
       <LabOrders />
       <Timeline />
     </div>

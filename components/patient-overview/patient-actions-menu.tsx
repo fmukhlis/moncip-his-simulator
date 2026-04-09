@@ -60,7 +60,7 @@ export function PatientActionsMenu({ patientId }: PatientActionsMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem asChild>
-            <Link href={`/auth/patients/${patientId}/edit`}>
+            <Link href={`/auth/patients/${patientId}/overview/edit`}>
               <Pencil className="size-3" />
               Edit patient
             </Link>

@@ -20,7 +20,7 @@ export function SideNavItem({ url, icon, title }: Omit<DataProps, "items">) {
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton isActive={pathname === url} tooltip={title} asChild>
+      <SidebarMenuButton isActive={pathname === url || pathname.startsWith(`${url}/`)} tooltip={title} asChild>
         <Link href={url}>
           {icon}
           <span>{title}</span>
@@ -35,7 +35,7 @@ function SideNavSubItem({ url, title }: NonNullable<DataProps["items"]>[number])
 
   return (
     <SidebarMenuSubItem>
-      <SidebarMenuSubButton isActive={pathname === url} asChild>
+      <SidebarMenuSubButton isActive={pathname === url || pathname.startsWith(`${url}/`)} asChild>
         <Link href={url}>
           <span>{title}</span>
         </Link>
@@ -48,10 +48,14 @@ export function CollapsibleSideNavItem({ url, icon, title, items }: Required<Dat
   const pathname = usePathname()
 
   return (
-    <Collapsible asChild defaultOpen={pathname.startsWith(url) ?? false} className="group/collapsible">
+    <Collapsible
+      asChild
+      defaultOpen={(pathname === url || pathname.startsWith(`${url}/`)) ?? false}
+      className="group/collapsible"
+    >
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton isActive={pathname.startsWith(url)} tooltip={title}>
+          <SidebarMenuButton isActive={pathname === url || pathname.startsWith(`${url}/`)} tooltip={title}>
             {icon}
             <span>{title}</span>
             <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

@@ -2,8 +2,8 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { getPatientOverview } from "../dals/query"
-import { GetPatientOverviewActionSchema } from "../schema"
+import { getCreateEncounterPageData, getPatientOverview } from "../dals/query"
+import { GetCreateEncounterPageDataActionSchema, GetPatientOverviewActionSchema } from "../schema"
 
 export async function getPatientOverviewAction(params: z.infer<typeof GetPatientOverviewActionSchema>) {
   // Authentication
@@ -26,6 +26,30 @@ export async function getPatientOverviewAction(params: z.infer<typeof GetPatient
   if (!queryResponse) {
     throw new Error("Patient not found.")
   }
+
+  return { data: queryResponse }
+}
+
+export async function getCreateEncounterPageDataAction(params: z.infer<typeof GetCreateEncounterPageDataActionSchema>) {
+  // Authentication
+  const session = await auth()
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("Unauthenticated.")
+  }
+
+  // Payload validation
+  const parsedData = GetCreateEncounterPageDataActionSchema.safeParse(params)
+  if (!parsedData.success) {
+    throw new Error("Data is invalid.")
+  }
+
+  const { patientId } = parsedData.data
+
+  // DAL
+  const queryResponse = await getCreateEncounterPageData({
+    userId: session.user.id,
+    patientId,
+  })
 
   return { data: queryResponse }
 }

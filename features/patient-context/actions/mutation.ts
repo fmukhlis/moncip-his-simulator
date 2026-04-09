@@ -2,8 +2,13 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { deletePatient, updatePatient } from "../dals/mutation"
-import { DeletePatientActionSchema, UpdatePatientActionSchema } from "../schema"
+import { createEncounter, deletePatient, updatePatient } from "../dals/mutation"
+import {
+  CreateEncounterSchema,
+  DeletePatientActionSchema,
+  UpdatePatientActionSchema,
+  CreateEncounterActionSchema,
+} from "../schema"
 
 export async function updatePatientAction(params: z.infer<typeof UpdatePatientActionSchema>) {
   // Authentication
@@ -55,6 +60,35 @@ export async function deletePatientAction(params: z.infer<typeof DeletePatientAc
   const patient = await deletePatient({
     userId: session.user.id,
     patientId,
+  })
+
+  return { ...patient }
+}
+
+export async function createEncounterAction(params: z.infer<typeof CreateEncounterActionSchema>) {
+  // Authentication
+  const session = await auth()
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("Unauthenticated.")
+  }
+
+  // Payload validation
+  const parsedData = CreateEncounterSchema.safeParse({ ...params, userId: session.user.id })
+  if (!parsedData.success) {
+    throw new Error("Data is invalid.")
+  }
+
+  const { unitId, patientId, providerId, coverageType, encounterType, reason, userId } = parsedData.data
+
+  // DAL
+  const patient = await createEncounter({
+    reason,
+    unitId,
+    userId,
+    patientId,
+    providerId,
+    coverageType,
+    encounterType,
   })
 
   return { ...patient }

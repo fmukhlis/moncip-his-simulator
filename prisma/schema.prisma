@@ -168,7 +168,7 @@ model Unit {
   id         String      @id @default(cuid(2))
   code       String      @unique
   name       String
-  active     Boolean     @default(true)
+  isActive   Boolean     @default(true)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 
@@ -185,7 +185,6 @@ model Encounter {
   reason                        String?
   status                        EncounterStatus   @default(ACTIVE)
   sequence                      Int    
-  department                    String
   encounterNo                   String                     
   coverageType                  CoverageType
   encounterType                 EncounterType
@@ -193,7 +192,7 @@ model Encounter {
   createdAt                     DateTime          @default(now())
   updatedAt                     DateTime          @updatedAt
   deletedAt                     DateTime?
-  encounterDateTime             DateTime
+  encounterDateTime             DateTime          @default(now())
 
   unit                          Unit              @relation(fields: [unitId], references: [id])
   patient                       Patient           @relation(fields: [patientId], references: [id])

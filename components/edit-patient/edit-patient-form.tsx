@@ -14,13 +14,13 @@ import { Controller, useForm } from "react-hook-form"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { UpdatePatientFormSchema } from "@/features/patient-context/schema"
 import { getUpdatePatientActionOptions } from "@/features/patient-context/api/mutation"
-import { getPatientOverviewActionOptions } from "@/features/patient-context/api/query"
+import { getGetPatientOverviewActionOptions } from "@/features/patient-context/api/query"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 export default function EditPatientForm({ patientId }: { patientId: string }) {
-  const { data } = useQuery(getPatientOverviewActionOptions(patientId))
+  const { data } = useQuery(getGetPatientOverviewActionOptions(patientId))
 
   // Already checked in the layout (see app/auth/(patient-context)/patients/[patientId]/layout.tsx).
   // If patient is not found, it will redirect to 404 even before this component is rendered.

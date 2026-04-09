@@ -4,7 +4,7 @@ import { Mars } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { formatAge } from "@/lib/utils"
 import { PatientActionsMenu } from "./patient-actions-menu"
-import { getPatientOverviewActionOptions } from "@/features/patient-context/api/query"
+import { getGetPatientOverviewActionOptions } from "@/features/patient-context/api/query"
 import { Card, CardTitle, CardAction, CardFooter, CardHeader, CardContent } from "@/components/ui/card"
 
 const GENDER_LABEL = {
@@ -13,10 +13,8 @@ const GENDER_LABEL = {
 }
 
 export function PatientSnapshot({ patientId }: { patientId: string }) {
-  const { data } = useQuery(getPatientOverviewActionOptions(patientId))
+  const { data } = useQuery(getGetPatientOverviewActionOptions(patientId))
 
-  // Already checked in the layout (see app/auth/(patient-context)/patients/[patientId]/layout.tsx).
-  // If patient is not found, it will redirect to 404 even before this component is rendered.
   if (!data) {
     return <div>Data not found</div>
   }
