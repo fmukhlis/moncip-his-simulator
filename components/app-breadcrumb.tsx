@@ -32,7 +32,7 @@ export default function AppBreadcrumb() {
         { title: "Lab. Orders", url: `/auth/patients/${patientId}/lab-orders`, icon: <NotepadText /> },
         { title: "Edit Patient", url: `/auth/patients/${patientId}/overview/edit`, icon: <></> },
         {
-          title: "List",
+          title: "Encounters",
           url: `/auth/patients/${patientId}/encounters`,
           icon: <></>,
           items: [

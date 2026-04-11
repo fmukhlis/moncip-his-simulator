@@ -4,7 +4,8 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { formatISO } from "date-fns"
 import { ActiveEncounterExistsError } from "@/lib/custom-errors/active-encounter-exists-error"
-import { GetCreateEncounterPageDataSchema, GetPatientOverviewSchema } from "../schema"
+import { GetCreateEncounterPageDataSchema, GetEncounterListSchema, GetPatientOverviewSchema } from "../schema"
+import { Prisma } from "@/generated/prisma/client"
 
 export async function getPatientOverview({ patientId, userId }: z.infer<typeof GetPatientOverviewSchema>) {
   const [patient, activeEncounter, lastEncounter] = await Promise.all([
@@ -190,4 +191,84 @@ export async function getCreateEncounterPageData({
     },
     providers,
   }
+}
+
+export async function getEncounterList(params: z.infer<typeof GetEncounterListSchema>) {
+  const where: Prisma.EncounterWhereInput = {
+    patient: {
+      id: params.patientId,
+      userId: params.userId,
+      deletedAt: null,
+    },
+    deletedAt: null,
+  }
+
+  if (params.status) {
+    where.status = params.status
+  }
+
+  if (params.type) {
+    where.encounterType = params.type
+  }
+
+  if (params.unitId) {
+    where.unitId = params.unitId
+  }
+
+  if (params.q) {
+    where.OR = [
+      { unit: { name: { contains: params.q, mode: "insensitive" } } },
+      { provider: { name: { contains: params.q, mode: "insensitive" } } },
+      { encounterNo: { contains: params.q, mode: "insensitive" } },
+    ]
+  }
+
+  const [items, totalCount] = await Promise.all([
+    prisma.encounter.findMany({
+      where,
+      skip: (params.page - 1) * params.pageSize,
+      take: params.pageSize,
+      select: {
+        id: true,
+        unit: { select: { id: true, name: true } },
+        status: true,
+        patient: { select: { id: true } },
+        provider: { select: { id: true, name: true } },
+        encounterNo: true,
+        encounterType: true,
+        encounterDateTime: true,
+      },
+      orderBy: [{ encounterDateTime: "desc" }, { sequence: "desc" }],
+    }),
+    prisma.encounter.count({ where }),
+  ])
+
+  const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / params.pageSize)
+
+  return {
+    page: params.page,
+    items: items.map((item) => ({
+      ...item,
+      encounterDateTime: formatISO(item.encounterDateTime),
+    })),
+    pageSize: params.pageSize,
+    totalCount,
+    hasNextPage: params.page < totalPages,
+    hasPreviousPage: params.page > 1,
+  }
+}
+
+export async function getEncounterUnitOptions() {
+  return await prisma.unit.findMany({
+    where: {
+      isActive: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  })
 }

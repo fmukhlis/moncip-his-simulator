@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { CreatePatientSchema } from "../registration/schema"
-import { CoverageType, EncounterType } from "@/generated/prisma/enums"
+import { CoverageType, EncounterStatus, EncounterType } from "@/generated/prisma/enums"
 
 const requiredCuid2 = (label: string) =>
   z
@@ -74,3 +74,29 @@ export const CreateEncounterSchema = CreateEncounterActionSchema.extend({
   coverageType: value.coverageType as CoverageType,
   encounterType: value.encounterType as EncounterType,
 }))
+
+// ########################################################################
+// ########################## GetEncounterList ############################
+
+export const GetEncounterListActionSchema = z.object({
+  q: z.string().trim(),
+  page: z.number().int().positive().optional(),
+  type: requiredEnumString(["ALL", "IPD", "OPD", "ER"], "Encounter Type"),
+  unitId: z.string().trim(),
+  status: requiredEnumString(["ALL", "ACTIVE", "COMPLETED", "CANCELLED"], "Encounter Status"),
+  pageSize: z.number().int().positive().max(100).optional(),
+  patientId: requiredCuid2("Patient"),
+})
+
+export const GetEncounterListSchema = GetEncounterListActionSchema.extend({ userId: requiredCuid2("User") }).transform(
+  (value) => ({
+    q: value.q,
+    page: value.page ?? 1,
+    type: value.type === "ALL" ? undefined : (value.type as EncounterType),
+    unitId: value.unitId ? value.unitId : undefined,
+    userId: value.userId,
+    status: value.status === "ALL" ? undefined : (value.status as EncounterStatus),
+    pageSize: value.pageSize ?? 10,
+    patientId: value.patientId,
+  })
+)

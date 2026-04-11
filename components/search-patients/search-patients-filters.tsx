@@ -65,7 +65,7 @@ export default function SearchPatientsFilters() {
             <Popover open={birthDateCalendarOpen} onOpenChange={setBirthDateCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" id="search-patients-birth-date" className="justify-start font-normal">
-                  {filters.birthDate instanceof Date ? format(filters.birthDate, "d MMMM yyyy") : "Select date..."}
+                  {filters.birthDate instanceof Date ? format(filters.birthDate, "dd MMMM yyyy") : "Select date..."}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto overflow-hidden p-0">

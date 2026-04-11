@@ -44,7 +44,7 @@ export default function PatientSummary({ patientId }: { patientId: string }) {
 
           <Field>
             <FieldLabel>Birth Date</FieldLabel>
-            <Input value={format(new Date(data.patient.birthDate), "dd MMM yyyy")} readOnly />
+            <Input value={format(new Date(data.patient.birthDate), "dd MMM yyyy, HH:mm")} readOnly />
           </Field>
 
           <Field>

@@ -125,7 +125,7 @@ export default function RegisterPatientForm() {
                       <Popover open={birthDateCalendarOpen} onOpenChange={setBirthDateCalendarOpen}>
                         <PopoverTrigger aria-invalid={fieldState.invalid} asChild>
                           <Button variant="outline" id="date" className="justify-start font-normal">
-                            {value instanceof Date ? format(value, "d MMMM yyyy") : "Select date..."}
+                            {value instanceof Date ? format(value, "dd MMMM yyyy") : "Select date..."}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto overflow-hidden p-0">
