@@ -1,17 +1,17 @@
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { redirect } from "next/navigation"
+import { getQueryClient } from "@/app/get-query-client"
+import { EditEncounterForm } from "@/components/edit-encounter/edit-encounter-form"
 import PatientSummary from "@/components/edit-encounter/patient-summary"
 
 import { Button } from "@/components/ui/button"
-import { redirect } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import { getQueryClient } from "@/app/get-query-client"
 import { Card, CardHeader } from "@/components/ui/card"
-import { EditEncounterForm } from "@/components/edit-encounter/edit-encounter-form"
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import {
-  getGetEncounterUnitsActionOptions,
-  getGetEncounterProvidersActionOptions,
   getCachedGetEncounterDetailActionOptions,
+  getGetEncounterProvidersActionOptions,
+  getGetEncounterUnitsActionOptions,
 } from "@/features/patient-context/api/query"
 
 export default async function EditEncounter({

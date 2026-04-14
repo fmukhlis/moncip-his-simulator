@@ -1,18 +1,18 @@
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { notFound, redirect } from "next/navigation"
+import { getQueryClient } from "@/app/get-query-client"
+import { CreateEncounterForm } from "@/components/create-encounter/create-encounter-form"
 import PatientSummary from "@/components/create-encounter/patient-summary"
 
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { getQueryClient } from "@/app/get-query-client"
 import { Card, CardHeader } from "@/components/ui/card"
-import { notFound, redirect } from "next/navigation"
-import { CreateEncounterForm } from "@/components/create-encounter/create-encounter-form"
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import {
-  getGetPatientDetailActionOptions,
-  getGetEncounterUnitsActionOptions,
   getGetActiveEncounterActionOptions,
   getGetEncounterProvidersActionOptions,
+  getGetEncounterUnitsActionOptions,
+  getGetPatientDetailActionOptions,
 } from "@/features/patient-context/api/query"
 
 export default async function CreateEncounter({ params }: { params: Promise<{ patientId: string }> }) {

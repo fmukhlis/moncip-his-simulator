@@ -1,10 +1,10 @@
 "use client"
 
-import { columns } from "./columns"
 import { useQuery } from "@tanstack/react-query"
-import { BasicTable } from "../ui/basic-table"
-import { useSearchPatientsStore } from "@/providers/search-patients-store-provider"
 import { getSearchPatientsActionOptions } from "@/features/search-patients/api/query"
+import { useSearchPatientsStore } from "@/providers/search-patients-store-provider"
+import { columns } from "./columns"
+import { BasicTable } from "../ui/basic-table"
 
 export default function SearchPatientsResult() {
   const { filters } = useSearchPatientsStore((state) => state)

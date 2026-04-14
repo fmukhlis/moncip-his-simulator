@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 
-import { Fragment } from "react"
-import { DATA, DataProps } from "@/lib/navigation-data"
-import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
 import { useParams, usePathname } from "next/navigation"
+import { Fragment } from "react"
+import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
+import { DATA, DataProps } from "@/lib/navigation-data"
 import {
   Breadcrumb,
   BreadcrumbItem,

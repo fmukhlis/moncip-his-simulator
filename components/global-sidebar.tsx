@@ -1,8 +1,8 @@
-import { DATA } from "@/lib/navigation-data"
 import { NavUser } from "@/components/nav-user"
-import { SideNav } from "./side-nav"
 import { SidebarLogo } from "@/components/sidebar-logo"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { DATA } from "@/lib/navigation-data"
+import { SideNav } from "./side-nav"
 
 export function GlobalSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

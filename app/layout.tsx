@@ -1,11 +1,11 @@
 import "@/styles/tailwind.css"
 
-import Providers from "./providers"
 
-import { Toaster } from "@/components/ui/sonner"
 import { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import Providers from "./providers"
 
 export const metadata: Metadata = {
   title: {

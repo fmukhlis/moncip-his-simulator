@@ -1,21 +1,21 @@
 "use client"
 
-import { toast } from "sonner"
-import { Button } from "../ui/button"
-import { Spinner } from "../ui/spinner"
-import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
+import { toast } from "sonner"
 import { getCompleteEncounterActionOptions } from "@/features/patient-context/api/mutation"
 import {
   AlertDialog,
-  AlertDialogTitle,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogTrigger,
   AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "../ui/alert-dialog"
+import { Button } from "../ui/button"
+import { Spinner } from "../ui/spinner"
 
 export default function MarkAsCompletedAlertDialog({
   patientId,

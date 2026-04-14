@@ -1,13 +1,13 @@
 "use client"
 
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { format } from "date-fns"
+import { CalendarClock, Hospital, MoreHorizontal, Stethoscope } from "lucide-react"
 import Link from "next/link"
 
+import { getPatientEncountersAction } from "@/features/patient-context/actions/query"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
-import { format } from "date-fns"
-import { getPatientEncountersAction } from "@/features/patient-context/actions/query"
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
-import { CalendarClock, Hospital, MoreHorizontal, Stethoscope } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 
 const ENCOUNTER_TYPE_LABEL = {

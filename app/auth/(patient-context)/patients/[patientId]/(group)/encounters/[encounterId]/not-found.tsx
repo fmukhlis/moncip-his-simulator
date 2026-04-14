@@ -1,7 +1,7 @@
+import { SearchX } from "lucide-react"
 import EncounterNotFoundAction from "@/components/encounter-detail/encounter-not-found-action"
 
-import { SearchX } from "lucide-react"
-import { Empty, EmptyMedia, EmptyTitle, EmptyHeader, EmptyContent, EmptyDescription } from "@/components/ui/empty"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 
 export default function EncounterNotFound() {
   return (

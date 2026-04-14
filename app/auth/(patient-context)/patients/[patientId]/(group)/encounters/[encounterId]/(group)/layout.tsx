@@ -1,6 +1,6 @@
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { notFound } from "next/navigation"
 import { getQueryClient } from "@/app/get-query-client"
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { getCachedGetEncounterDetailActionOptions } from "@/features/patient-context/api/query"
 
 export default async function PatientEncounterLayout({

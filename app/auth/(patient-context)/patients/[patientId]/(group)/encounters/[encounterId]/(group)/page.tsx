@@ -1,14 +1,14 @@
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import EncounterDetailHeader from "@/components/encounter-detail/encounter-detail-header"
-import EncounterMetadataCard from "@/components/encounter-detail/encounter-metadata-card"
-import EncounterLabOrdersCard from "@/components/encounter-detail/encounter-lab-orders-card"
+import { Suspense } from "react"
 import EncounterCareContextCard from "@/components/encounter-detail/encounter-care-context-card"
 import EncounterClinicalContextCard from "@/components/encounter-detail/encounter-clinical-context-card"
+import EncounterDetailHeader from "@/components/encounter-detail/encounter-detail-header"
+import EncounterLabOrdersCard from "@/components/encounter-detail/encounter-lab-orders-card"
+import EncounterMetadataCard from "@/components/encounter-detail/encounter-metadata-card"
 
-import { Button } from "@/components/ui/button"
-import { Suspense } from "react"
-import { ArrowLeft } from "lucide-react"
 import { RedirectNotice } from "@/components/redirect-notice"
+import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
 
 export default async function EncounterDetail({

@@ -1,8 +1,7 @@
-import ThemeToggler from "@/components/theme-toggler"
 import AppBreadcrumb from "@/components/app-breadcrumb"
-
-import { Separator } from "@/components/ui/separator"
 import { GlobalSidebar } from "@/components/global-sidebar"
+import ThemeToggler from "@/components/theme-toggler"
+import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function GlobalLayout({ children }: { children: React.ReactNode }) {

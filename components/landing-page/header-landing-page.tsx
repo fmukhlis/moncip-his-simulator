@@ -1,12 +1,7 @@
 "use client"
 
+import { ExternalLink, Hospital } from "lucide-react"
 import Link from "next/link"
-import GithubIcon from "../ui/github-icon"
-import ThemeToggler from "../theme-toggler"
-
-import { Button } from "../ui/button"
-import { useTheme } from "next-themes"
-import { ExternalLink, Hospital, Moon, Sun } from "lucide-react"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -14,10 +9,11 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import ThemeToggler from "../theme-toggler"
+import { Button } from "../ui/button"
+import GithubIcon from "../ui/github-icon"
 
 export function HeaderLandingPage() {
-  const { setTheme, theme } = useTheme()
-
   return (
     <header className="bg-background sticky top-0 z-50 w-full">
       <div className="w-full px-6">

@@ -1,10 +1,10 @@
+import { Plus } from "lucide-react"
 import Link from "next/link"
 import EncounterFiltersCard from "@/components/encounters-list/encounter-filters-card"
 
-import { Plus } from "lucide-react"
+import { EncounterTableCard } from "@/components/encounters-list/encounter-table-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
-import { EncounterTableCard } from "@/components/encounters-list/encounter-table-card"
 
 function getSingleSearchParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value

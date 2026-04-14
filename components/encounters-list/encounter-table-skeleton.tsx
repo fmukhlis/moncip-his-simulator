@@ -1,5 +1,5 @@
-import { Skeleton } from "../ui/skeleton"
 import { Separator } from "../ui/separator"
+import { Skeleton } from "../ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 
 export default function EncounterTableSkeleton() {

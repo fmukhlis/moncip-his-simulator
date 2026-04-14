@@ -1,25 +1,25 @@
 "use client"
 
-import Link from "next/link"
-
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Spinner } from "../ui/spinner"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { useMutation } from "@tanstack/react-query"
 import { Ellipsis, Pencil, Trash } from "lucide-react"
-import { getDeletePatientActionOptions } from "@/features/patient-context/api/mutation"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
+
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 import {
   AlertDialog,
-  AlertDialogTitle,
   AlertDialogCancel,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { getDeletePatientActionOptions } from "@/features/patient-context/api/mutation"
+import { Spinner } from "../ui/spinner"
 
 type PatientActionsMenuProps = {
   patientId: string

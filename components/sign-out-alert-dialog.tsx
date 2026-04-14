@@ -1,20 +1,21 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-import { Button } from "./ui/button"
-import { Spinner } from "./ui/spinner"
-import { signOutAction } from "@/features/authentication/actions/mutation"
 import { LogOut, LogOutIcon } from "lucide-react"
 import { startTransition, useActionState } from "react"
-import { AlertDialogMedia, AlertDialogTrigger } from "./ui/alert-dialog"
+import { signOutAction } from "@/features/authentication/actions/mutation"
+import { cn } from "@/lib/utils"
 import {
-  AlertDialogTitle,
   AlertDialogCancel,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogContent,
   AlertDialogDescription,
-} from "@/components/ui/alert-dialog"
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog"
+import { Button } from "./ui/button"
+import { Spinner } from "./ui/spinner"
 
 export function SignOutAlertDialogTrigger({ className, ...props }: React.ComponentProps<"button">) {
   return (
@@ -28,7 +29,7 @@ export function SignOutAlertDialogTrigger({ className, ...props }: React.Compone
 }
 
 export function SignOutAlertDialogContent() {
-  const [state, dispatchAction, isPending] = useActionState(signOutAction, false)
+  const [_state, dispatchAction, isPending] = useActionState(signOutAction, false)
 
   const handleClick = () => {
     startTransition(() => {

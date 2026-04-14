@@ -1,10 +1,10 @@
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { DataProps } from "@/lib/navigation-data"
+import { NavUser } from "./nav-user"
 import PatientCardSidebar from "./patient-card-sidebar"
 
-import { NavUser } from "./nav-user"
-import { SideNav } from "./side-nav"
-import { DataProps } from "@/lib/navigation-data"
 import { PatientSidebarHeader } from "./patient-sidebar-header"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { SideNav } from "./side-nav"
 
 export function PatientContextSidebar({
   DATA,

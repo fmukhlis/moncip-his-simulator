@@ -1,13 +1,13 @@
 "use client"
 
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { parseISO } from "date-fns"
+import { Mars, SquareArrowOutUpRight, Venus } from "lucide-react"
 import Link from "next/link"
 
-import { Button } from "../ui/button"
-import { parseISO } from "date-fns"
-import { formatAge } from "@/lib/utils"
 import { searchPatientsAction } from "@/features/search-patients/actions/query"
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
-import { Mars, SquareArrowOutUpRight, Venus } from "lucide-react"
+import { formatAge } from "@/lib/utils"
+import { Button } from "../ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
 const GENDER_LABEL = {

@@ -1,13 +1,13 @@
 "use client"
 
-import { X } from "lucide-react"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
 import { format } from "date-fns"
-import { Calendar } from "../ui/calendar"
+import { X } from "lucide-react"
 import { useState } from "react"
 import { useSearchPatientsStore } from "@/providers/search-patients-store-provider"
+import { Button } from "../ui/button"
+import { Calendar } from "../ui/calendar"
 import { Field, FieldGroup, FieldLabel } from "../ui/field"
+import { Input } from "../ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 
 export default function SearchPatientsFilters() {

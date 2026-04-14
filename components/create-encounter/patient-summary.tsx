@@ -1,14 +1,14 @@
 "use client"
 
-import { Badge } from "../ui/badge"
-import { Input } from "../ui/input"
-import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
-import { formatAge } from "@/lib/utils"
-import { Field, FieldLabel } from "../ui/field"
+import { format } from "date-fns"
 import { useEffect, useState } from "react"
 import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
+import { formatAge } from "@/lib/utils"
+import { Badge } from "../ui/badge"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { Field, FieldLabel } from "../ui/field"
+import { Input } from "../ui/input"
 
 const GENDER_LABEL = {
   M: "Male",

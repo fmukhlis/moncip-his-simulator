@@ -1,17 +1,17 @@
 "use client"
 
+import { ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
 
-import { DataProps } from "@/lib/navigation-data"
 import { usePathname } from "next/navigation"
-import { ChevronRightIcon } from "lucide-react"
+import { DataProps } from "@/lib/navigation-data"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 import {
-  SidebarMenuSub,
-  SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSubItem,
+  SidebarMenuItem,
+  SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "./ui/sidebar"
 
 export function SideNavItem({ url, icon, title }: Omit<DataProps, "items">) {

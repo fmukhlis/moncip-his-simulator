@@ -1,8 +1,8 @@
 "use client"
 
-import { toast } from "sonner"
-import { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect } from "react"
+import { toast } from "sonner"
 
 export function RedirectNotice() {
   const router = useRouter()

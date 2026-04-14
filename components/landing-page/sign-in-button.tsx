@@ -1,15 +1,14 @@
 "use client"
 
-import GoogleIcon from "../ui/google-icon"
-
-import { roboto } from "@/lib/fonts"
-import { Spinner } from "../ui/spinner"
-import { signInWithGoogleAction } from "@/features/authentication/actions/mutation"
 import { startTransition, useActionState } from "react"
 import { FlipButton, FlipButtonBack, FlipButtonFront } from "@/components/animate-ui/components/buttons/flip"
+import { signInWithGoogleAction } from "@/features/authentication/actions/mutation"
+import { roboto } from "@/lib/fonts"
+import GoogleIcon from "../ui/google-icon"
+import { Spinner } from "../ui/spinner"
 
 export default function SignInButton() {
-  const [state, dispatchAction, isPending] = useActionState(signInWithGoogleAction, false)
+  const [_state, dispatchAction, isPending] = useActionState(signInWithGoogleAction, false)
 
   const handleClick = () => {
     startTransition(() => {

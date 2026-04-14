@@ -1,7 +1,7 @@
 "use client"
 
-import { ColumnDef, flexRender, useReactTable, getCoreRowModel } from "@tanstack/react-table"
-import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "@/components/ui/table"
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 type TableState =
   | { type: "idle"; message: string }

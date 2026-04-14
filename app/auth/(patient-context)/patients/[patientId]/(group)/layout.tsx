@@ -1,15 +1,15 @@
-import ThemeToggler from "@/components/theme-toggler"
-import AppBreadcrumb from "@/components/app-breadcrumb"
 
-import { notFound } from "next/navigation"
-import { DataProps } from "@/lib/navigation-data"
-import { Separator } from "@/components/ui/separator"
-import { getQueryClient } from "@/app/get-query-client"
-import { PatientContextSidebar } from "@/components/patient-context-sidebar"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
-import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
 import { LayoutGrid, NotepadText, ScrollText } from "lucide-react"
+import { notFound } from "next/navigation"
+import { getQueryClient } from "@/app/get-query-client"
+import AppBreadcrumb from "@/components/app-breadcrumb"
+import { PatientContextSidebar } from "@/components/patient-context-sidebar"
+import ThemeToggler from "@/components/theme-toggler"
+import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
+import { DataProps } from "@/lib/navigation-data"
 
 function generateSidebarData(patientId: string) {
   return {

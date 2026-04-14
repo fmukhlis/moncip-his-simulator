@@ -1,10 +1,10 @@
 "use client"
 
+import { BookSearch } from "lucide-react"
 import Link from "next/link"
 
-import { Button } from "../ui/button"
 import { useParams } from "next/navigation"
-import { BookSearch } from "lucide-react"
+import { Button } from "../ui/button"
 
 export default function EncounterNotFoundAction() {
   const { patientId } = useParams<{ patientId: string }>()

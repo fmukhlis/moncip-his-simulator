@@ -1,17 +1,17 @@
 "use client"
 
-import { Mars } from "lucide-react"
-import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
-import { formatAge } from "@/lib/utils"
-import { PatientActionsMenu } from "./patient-actions-menu"
+import { format } from "date-fns"
+import { Mars } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Card, CardTitle, CardAction, CardFooter, CardHeader, CardContent } from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   getGetLastEncounterActionOptions,
   getGetPatientDetailActionOptions,
   getGetPatientEncountersCountActionOptions,
 } from "@/features/patient-context/api/query"
+import { formatAge } from "@/lib/utils"
+import { PatientActionsMenu } from "./patient-actions-menu"
 
 const GENDER_LABEL = {
   M: "Male",

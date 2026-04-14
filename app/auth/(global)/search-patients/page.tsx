@@ -1,8 +1,8 @@
-import SearchPatientsResult from "@/components/search-patients/search-patients-result"
 import SearchPatientsFilters from "@/components/search-patients/search-patients-filters"
+import SearchPatientsResult from "@/components/search-patients/search-patients-result"
 
-import { SearchPatientsStoreProvider } from "@/providers/search-patients-store-provider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SearchPatientsStoreProvider } from "@/providers/search-patients-store-provider"
 
 export default function SearchPatients() {
   return (

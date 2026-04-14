@@ -1,12 +1,12 @@
 "use client"
 
-import { Button } from "../ui/button"
 import { LogOut } from "lucide-react"
-import { signOutAction } from "@/features/authentication/actions/mutation"
 import { startTransition, useActionState } from "react"
+import { signOutAction } from "@/features/authentication/actions/mutation"
+import { Button } from "../ui/button"
 
 export default function SignOutButton() {
-  const [state, dispatchAction, isPending] = useActionState(signOutAction, false)
+  const [_state, dispatchAction, isPending] = useActionState(signOutAction, false)
 
   const handleClick = () => {
     startTransition(() => {

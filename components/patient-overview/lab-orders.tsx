@@ -1,7 +1,7 @@
-import { Badge } from "../ui/badge"
-import { Button } from "@/components/ui/button"
 import { ExternalLink, MoveDown, MoveRight, Plus } from "lucide-react"
-import { Card, CardTitle, CardHeader, CardContent, CardAction } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "../ui/badge"
 
 export function LabOrders() {
   return (

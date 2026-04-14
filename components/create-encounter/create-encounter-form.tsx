@@ -1,28 +1,28 @@
 "use client"
 
-import z from "zod"
-import Link from "next/link"
 
-import { Input } from "@/components/ui/input"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { AlertCircle } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import z from "zod"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getCreateEncounterActionOptions } from "@/features/patient-context/api/mutation"
+import {
+  getGetEncounterProvidersActionOptions,
+  getGetEncounterUnitsActionOptions,
+} from "@/features/patient-context/api/query"
+import { CreateEncounterActionSchema } from "@/features/patient-context/schema"
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
 import { Spinner } from "../ui/spinner"
 import { Textarea } from "../ui/textarea"
-import { useRouter } from "next/navigation"
-import { AlertCircle } from "lucide-react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { CreateEncounterActionSchema } from "@/features/patient-context/schema"
-import { getCreateEncounterActionOptions } from "@/features/patient-context/api/mutation"
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
-import {
-  getGetEncounterUnitsActionOptions,
-  getGetEncounterProvidersActionOptions,
-} from "@/features/patient-context/api/query"
 
 const typeOptions = [
   { value: "OPD", label: "Outpatient" },

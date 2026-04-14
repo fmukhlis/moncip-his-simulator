@@ -1,7 +1,7 @@
 "use client"
 
-import { Contact } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
+import { Contact } from "lucide-react"
 import { useParams } from "next/navigation"
 import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"

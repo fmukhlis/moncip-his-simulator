@@ -1,20 +1,20 @@
 "use client"
 
+import { BadgeCheckIcon, BellIcon, ChevronsUpDownIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
-import { AlertDialog } from "./ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ChevronsUpDownIcon, BadgeCheckIcon, BellIcon } from "lucide-react"
-import { SignOutAlertDialogContent, SignOutAlertDialogTrigger } from "./sign-out-alert-dialog"
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
 import {
   DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuGroup,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
+import { SignOutAlertDialogContent, SignOutAlertDialogTrigger } from "./sign-out-alert-dialog"
+import { AlertDialog } from "./ui/alert-dialog"
 
 export function NavUser() {
   const { data: session } = useSession()

@@ -1,8 +1,8 @@
+import { BookSearch, SearchX } from "lucide-react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import { BookSearch, SearchX } from "lucide-react"
-import { Empty, EmptyMedia, EmptyTitle, EmptyHeader, EmptyContent, EmptyDescription } from "@/components/ui/empty"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 
 export default function PatientNotFound() {
   return (

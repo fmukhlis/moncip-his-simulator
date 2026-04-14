@@ -1,5 +1,5 @@
-import { auth } from "@/auth"
 import { SessionProvider } from "next-auth/react"
+import { auth } from "@/auth"
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()

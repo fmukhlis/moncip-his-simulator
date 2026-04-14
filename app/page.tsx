@@ -1,11 +1,11 @@
+import { MoveRight } from "lucide-react"
 import Link from "next/link"
+import { auth } from "@/auth"
+import { HeaderLandingPage } from "@/components/landing-page/header-landing-page"
 import SignInButton from "@/components/landing-page/sign-in-button"
 import SignOutButton from "@/components/landing-page/sign-out-button"
 
-import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
-import { MoveRight } from "lucide-react"
-import { HeaderLandingPage } from "@/components/landing-page/header-landing-page"
 
 export default async function Web() {
   const session = await auth()

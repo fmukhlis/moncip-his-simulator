@@ -1,15 +1,15 @@
 "use client"
 
-import { Button } from "../ui/button"
-import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useDebouncedCallback } from "use-debounce"
 import { Clock3, RotateCcw, Search } from "lucide-react"
-import { EncounterStatus, EncounterType } from "@/generated/prisma/enums"
-import { getGetEncounterUnitsActionOptions } from "@/features/patient-context/api/query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
+import { useState } from "react"
+import { useDebouncedCallback } from "use-debounce"
+import { getGetEncounterUnitsActionOptions } from "@/features/patient-context/api/query"
+import { EncounterStatus, EncounterType } from "@/generated/prisma/enums"
+import { Button } from "../ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 const STATUS_OPTIONS = [

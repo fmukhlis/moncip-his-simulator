@@ -1,17 +1,16 @@
 "use client"
 
-import { Badge } from "../ui/badge"
-import { format } from "date-fns"
-import { Button } from "../ui/button"
 import { useQuery } from "@tanstack/react-query"
-import { Skeleton } from "../ui/skeleton"
-import { EncounterStatus } from "@/generated/prisma/enums"
+import { format } from "date-fns"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getCachedGetEncounterDetailActionOptions } from "@/features/patient-context/api/query"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import CompleteEncounterAlertDialog from "./complete-encounter-alert-dialog"
+import { EncounterStatus } from "@/generated/prisma/enums"
 import CancelEncounterAlertDialog from "./cancel-encounter-alert-dialog"
-import Link from "next/link"
+import CompleteEncounterAlertDialog from "./complete-encounter-alert-dialog"
+import { Badge } from "../ui/badge"
+import { Button } from "../ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 
 function getStatusDescription(status: EncounterStatus) {
   switch (status) {

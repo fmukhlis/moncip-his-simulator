@@ -1,14 +1,14 @@
 "use client"
 
-import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
+import { format } from "date-fns"
 import { ExternalLink, Plus } from "lucide-react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { getGetActiveEncounterActionOptions } from "@/features/patient-context/api/query"
-import { Card, CardTitle, CardFooter, CardHeader, CardContent } from "@/components/ui/card"
 
 const ENCOUNTER_TYPE_LABEL = {
   ER: "Emergency",

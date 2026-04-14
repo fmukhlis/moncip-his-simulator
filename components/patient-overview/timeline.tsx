@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge"
 import { CircleSmall } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 type TimelineItem = {

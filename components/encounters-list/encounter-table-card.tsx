@@ -1,17 +1,17 @@
 "use client"
 
-import EncounterTableSkeleton from "./encounter-table-skeleton"
 
-import { Button } from "../ui/button"
-import { columns } from "./columns"
 import { useQuery } from "@tanstack/react-query"
-import { Separator } from "../ui/separator"
-import { BasicTable } from "../ui/basic-table"
-import { ComponentProps } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
-import { getGetPatientEncountersActionOptions } from "@/features/patient-context/api/query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "../ui/card"
+import { ComponentProps } from "react"
+import { getGetPatientEncountersActionOptions } from "@/features/patient-context/api/query"
+import { columns } from "./columns"
+import EncounterTableSkeleton from "./encounter-table-skeleton"
+import { BasicTable } from "../ui/basic-table"
+import { Button } from "../ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { Separator } from "../ui/separator"
 
 export function EncounterTableCard({
   filters,
