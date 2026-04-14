@@ -1,86 +1,107 @@
 "use server"
 
-import { z } from "zod"
-import { auth } from "@/auth"
+import z from "zod"
+
+import { cache } from "react"
+import { prisma } from "@/lib/prisma"
+import { formatISO } from "date-fns"
+import { requireAuthUser } from "@/lib/require-auth-user"
 import {
-  getCreateEncounterPageData,
-  getEncounterList,
-  getEncounterUnitOptions,
-  getPatientOverview,
+  getPatientDetail,
+  getLastEncounter,
+  getEncounterUnits,
+  getActiveEncounter,
+  getEncounterDetail,
+  getPatientEncounters,
+  getEncounterProviders,
+  getPatientEncountersCount,
 } from "../dals/query"
 import {
-  GetCreateEncounterPageDataActionSchema,
-  GetEncounterListActionSchema,
-  GetEncounterListSchema,
-  GetPatientOverviewActionSchema,
+  GetPatientDetailSchema,
+  GetLastEncounterSchema,
+  GetActiveEncounterSchema,
+  GetEncounterDetailSchema,
+  GetPatientEncountersSchema,
+  GetLastEncounterActionSchema,
+  GetPatientDetailActionSchema,
+  GetEncounterDetailActionSchema,
+  GetActiveEncounterActionSchema,
+  GetPatientEncountersCountSchema,
+  GetPatientEncountersActionSchema,
+  GetPatientEncountersCountActionSchema,
 } from "../schema"
 
-export async function getPatientOverviewAction(params: z.infer<typeof GetPatientOverviewActionSchema>) {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
+export async function getPatientDetailAction(params: z.infer<typeof GetPatientDetailActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { userId, patientId } = GetPatientDetailSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await getPatientDetail(prisma, { userId, patientId })
+
+  return {
+    data: queryResponse ? { ...queryResponse, birthDate: formatISO(queryResponse.birthDate) } : null,
   }
+}
 
-  // Payload validation
-  const parsedData = GetPatientOverviewActionSchema.safeParse(params)
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
+export async function getActiveEncounterAction(params: z.infer<typeof GetActiveEncounterActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { userId, patientId } = GetActiveEncounterSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await getActiveEncounter(prisma, { userId, patientId })
+
+  return {
+    data: queryResponse ? { ...queryResponse, dateTime: formatISO(queryResponse.dateTime) } : null,
   }
+}
 
-  const { patientId } = parsedData.data
+export async function getLastEncounterAction(params: z.infer<typeof GetLastEncounterActionSchema>) {
+  const user = await requireAuthUser()
 
-  // DAL
-  const queryResponse = await getPatientOverview({ patientId, userId: session.user.id })
+  const { userId, patientId } = GetLastEncounterSchema.parse({ ...params, userId: user.id })
 
-  if (!queryResponse) {
-    throw new Error("Patient not found.")
+  const queryResponse = await getLastEncounter(prisma, { userId, patientId })
+
+  return {
+    data: queryResponse ? { ...queryResponse, dateTime: formatISO(queryResponse.dateTime) } : null,
   }
+}
+
+export async function getPatientEncountersCountAction(params: z.infer<typeof GetPatientEncountersCountActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { userId, patientId } = GetPatientEncountersCountSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await getPatientEncountersCount(prisma, { userId, patientId })
+
+  return { data: queryResponse ? queryResponse._count.encounters : 0 }
+}
+
+export async function getEncounterUnitsAction() {
+  await requireAuthUser()
+
+  const queryResponse = await getEncounterUnits(prisma)
 
   return { data: queryResponse }
 }
 
-export async function getCreateEncounterPageDataAction(params: z.infer<typeof GetCreateEncounterPageDataActionSchema>) {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
-  }
+export async function getEncounterProvidersAction() {
+  await requireAuthUser()
 
-  // Payload validation
-  const parsedData = GetCreateEncounterPageDataActionSchema.safeParse(params)
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
-  }
+  const queryResponse = await getEncounterProviders(prisma)
 
-  const { patientId } = parsedData.data
+  return { data: queryResponse }
+}
 
-  // DAL
-  const queryResponse = await getCreateEncounterPageData({
-    userId: session.user.id,
-    patientId,
+export async function getPatientEncountersAction(params: z.infer<typeof GetPatientEncountersActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { q, page, status, type, unitId, pageSize, userId, patientId } = GetPatientEncountersSchema.parse({
+    ...params,
+    userId: user.id,
   })
 
-  return { data: queryResponse }
-}
-
-export async function getEncounterListAction(params: z.infer<typeof GetEncounterListActionSchema>) {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
-  }
-
-  // Payload validation
-  const parsedData = GetEncounterListSchema.safeParse({ ...params, userId: session.user.id })
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
-  }
-
-  const { q, page, status, type, unitId, pageSize, userId, patientId } = parsedData.data
-
-  // DAL
-  const queryResponse = await getEncounterList({
+  const queryResponse = await getPatientEncounters(prisma, {
     q,
     page,
     type,
@@ -91,18 +112,51 @@ export async function getEncounterListAction(params: z.infer<typeof GetEncounter
     patientId,
   })
 
-  return { data: queryResponse }
+  const [items, totalCount] = queryResponse
+
+  const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / pageSize)
+
+  return {
+    data: {
+      page: page,
+      items: items.map((item) => ({
+        ...item,
+        dateTime: formatISO(item.dateTime),
+      })),
+      pageSize: pageSize,
+      totalCount,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
+  }
 }
 
-export async function getEncounterUnitOptionsAction() {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
+async function getEncounterDetailAction(params: z.infer<typeof GetEncounterDetailActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { encounterId, patientId, userId } = GetEncounterDetailSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await getEncounterDetail(prisma, {
+    userId,
+    patientId,
+    encounterId,
+  })
+
+  if (!queryResponse) {
+    return { data: null }
   }
 
-  // DAL
-  const queryResponse = await getEncounterUnitOptions()
+  const { dateTime, createdAt, deletedAt, updatedAt, ...rest } = queryResponse
 
-  return { data: queryResponse }
+  return {
+    data: {
+      ...rest,
+      dateTime: formatISO(dateTime),
+      createdAt: formatISO(createdAt),
+      deletedAt: deletedAt ? formatISO(deletedAt) : null,
+      updatedAt: formatISO(updatedAt),
+    },
+  }
 }
+
+export const cachedGetEncounterDetailAction = cache(getEncounterDetailAction)

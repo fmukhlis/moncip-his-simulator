@@ -1,5 +1,8 @@
+import Link from "next/link"
 import EncounterFiltersCard from "@/components/encounters-list/encounter-filters-card"
 
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
 import { EncounterTableCard } from "@/components/encounters-list/encounter-table-card"
 
@@ -38,6 +41,11 @@ export default async function EncounterListPage({
                 continue clinical orders.
               </p>
             </div>
+            <Button asChild type="button" variant="outline">
+              <Link href={`/auth/patients/${patientId}/encounters/create`}>
+                <Plus /> Create Encounter
+              </Link>
+            </Button>
           </div>
         </CardHeader>
       </Card>

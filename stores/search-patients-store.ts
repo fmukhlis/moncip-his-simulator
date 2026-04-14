@@ -2,9 +2,9 @@ import { createStore } from "zustand/vanilla"
 
 export type SearchPatientsState = {
   filters: {
-    mrn: string
     fullName: string
     birthDate: Date | undefined
+    mrnNumber: string
     nationalId: string
   }
 }
@@ -16,7 +16,7 @@ export type SearchPatientsActions = {
 export type SearchPatientsStore = SearchPatientsState & SearchPatientsActions
 
 export const defaultInitState: SearchPatientsState = {
-  filters: { mrn: "", fullName: "", birthDate: undefined, nationalId: "" },
+  filters: { fullName: "", birthDate: undefined, mrnNumber: "", nationalId: "" },
 }
 
 export const createSearchPatientsStore = (initState: SearchPatientsState = defaultInitState) => {

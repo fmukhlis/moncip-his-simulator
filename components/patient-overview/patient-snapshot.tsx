@@ -1,11 +1,17 @@
 "use client"
 
 import { Mars } from "lucide-react"
+import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
 import { formatAge } from "@/lib/utils"
 import { PatientActionsMenu } from "./patient-actions-menu"
-import { getGetPatientOverviewActionOptions } from "@/features/patient-context/api/query"
+import { useEffect, useState } from "react"
 import { Card, CardTitle, CardAction, CardFooter, CardHeader, CardContent } from "@/components/ui/card"
+import {
+  getGetLastEncounterActionOptions,
+  getGetPatientDetailActionOptions,
+  getGetPatientEncountersCountActionOptions,
+} from "@/features/patient-context/api/query"
 
 const GENDER_LABEL = {
   M: "Male",
@@ -13,13 +19,19 @@ const GENDER_LABEL = {
 }
 
 export function PatientSnapshot({ patientId }: { patientId: string }) {
-  const { data } = useQuery(getGetPatientOverviewActionOptions(patientId))
+  const { data: patient } = useQuery(getGetPatientDetailActionOptions({ patientId }))
+  const { data: lastEncounter } = useQuery(getGetLastEncounterActionOptions({ patientId }))
+  const { data: encountersCount } = useQuery(getGetPatientEncountersCountActionOptions({ patientId }))
 
-  if (!data) {
-    return <div>Data not found</div>
+  const [lastEncounterDateTime, setLastEncounterDateTime] = useState("—")
+
+  useEffect(() => {
+    setLastEncounterDateTime(lastEncounter?.dateTime ? format(lastEncounter.dateTime, "dd MMM yyyy, HH:mm") : "—")
+  }, [lastEncounter?.dateTime])
+
+  if (!patient) {
+    return <></>
   }
-
-  const { patient } = data
 
   return (
     <Card className="w-full">
@@ -82,12 +94,12 @@ export function PatientSnapshot({ patientId }: { patientId: string }) {
           <p className="flex gap-2">
             <span className="w-[100px] shrink-0">Last Visit</span>
             <span className="w-[5px] shrink-0">:</span>
-            <span className="w-[200px]">20 Mar 2026</span>
+            <span className="w-[200px]">{lastEncounterDateTime}</span>
           </p>
           <p className="flex gap-2">
             <span className="w-[100px] shrink-0">Total Encounters</span>
             <span className="w-[5px] shrink-0">:</span>
-            <span className="w-[200px]">3</span>
+            <span className="w-[200px]">{encountersCount}</span>
           </p>
         </div>
       </CardFooter>

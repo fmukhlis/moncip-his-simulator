@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { Pool } from "pg"
 import { PrismaPg } from "@prisma/adapter-pg"
-import { Prisma, PrismaClient } from "../generated/prisma/client"
+import { PrismaClient } from "../generated/prisma/client"
 
 const connectionString = `${process.env.DATABASE_URL}`
 const pool = new Pool({ connectionString })
@@ -10,9 +10,9 @@ const prisma = new PrismaClient({ adapter })
 
 async function seedUnits() {
   const units = [
-    { code: "OPD-GEN", name: "Poliklinik Umum", active: true },
-    { code: "ER", name: "Instalasi Gawat Darurat", active: true },
-    { code: "IPD-MWR", name: "Rawat Inap Mawar", active: true },
+    { code: "OPD-GEN", name: "Poliklinik Umum", isActive: true },
+    { code: "ER", name: "Instalasi Gawat Darurat", isActive: true },
+    { code: "IPD-MWR", name: "Rawat Inap Mawar", isActive: true },
   ]
 
   for (const unit of units) {
@@ -20,7 +20,7 @@ async function seedUnits() {
       where: { code: unit.code },
       update: {
         name: unit.name,
-        active: unit.active,
+        isActive: unit.isActive,
       },
       create: unit,
     })

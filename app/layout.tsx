@@ -1,6 +1,5 @@
 import "@/styles/tailwind.css"
 
-import React from "react"
 import Providers from "./providers"
 
 import { Toaster } from "@/components/ui/sonner"

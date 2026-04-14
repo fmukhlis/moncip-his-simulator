@@ -6,7 +6,7 @@ import { DataProps } from "@/lib/navigation-data"
 import { PatientSidebarHeader } from "./patient-sidebar-header"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 
-export async function PatientContextSidebar({
+export function PatientContextSidebar({
   DATA,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { DATA: Record<"patientWorkspace", DataProps[]> }) {

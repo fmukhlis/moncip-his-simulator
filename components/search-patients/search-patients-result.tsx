@@ -1,7 +1,5 @@
 "use client"
 
-import React, { ComponentProps } from "react"
-
 import { columns } from "./columns"
 import { useQuery } from "@tanstack/react-query"
 import { BasicTable } from "../ui/basic-table"
@@ -14,14 +12,14 @@ export default function SearchPatientsResult() {
   const { data, isFetching, isEnabled } = useQuery(
     getSearchPatientsActionOptions({
       count: 20,
-      mrn: filters.mrn ? filters.mrn : undefined,
-      fullName: filters.fullName ? filters.fullName : undefined,
-      birthDate: filters.birthDate ? filters.birthDate : undefined,
-      nationalId: filters.nationalId ? filters.nationalId : undefined,
+      fullName: filters.fullName,
+      birthDate: filters.birthDate,
+      mrnNumber: filters.mrnNumber,
+      nationalId: filters.nationalId,
     })
   )
 
-  const getTableState: () => ComponentProps<typeof BasicTable>["tableState"] = () => {
+  const getTableState: () => React.ComponentProps<typeof BasicTable>["tableState"] = () => {
     if (!isEnabled) {
       return {
         type: "idle",

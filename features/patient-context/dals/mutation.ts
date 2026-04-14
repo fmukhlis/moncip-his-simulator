@@ -4,8 +4,17 @@ import z from "zod"
 
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@/generated/prisma/client"
+import { searchPatients } from "@/features/search-patients/dals/query"
+import { getPatientEncountersCount } from "./query"
 import { buildEncounterNo, buildEncounterPeriod } from "@/lib/generate-item-no"
-import { CreateEncounterSchema, DeletePatientSchema, UpdatePatientSchema } from "../schema"
+import {
+  UpdatePatientSchema,
+  DeletePatientSchema,
+  CancelEncounterSchema,
+  CreateEncounterSchema,
+  UpdateEncounterSchema,
+  CompleteEncounterSchema,
+} from "../schema"
 
 export async function updatePatient({
   userId,
@@ -16,18 +25,16 @@ export async function updatePatient({
   ...rest
 }: z.infer<typeof UpdatePatientSchema>) {
   return await prisma.$transaction(async (tx) => {
-    const duplicatePatient = await tx.patient.findFirst({
-      where: {
-        user: { id: userId },
-        deletedAt: null,
-        ...(fullName ? { fullName: { equals: fullName, mode: "insensitive" } } : {}),
-        ...(birthDate ? { birthDate: { equals: new Date(birthDate) } } : {}),
-        ...(nationalId ? { nationalId: { equals: nationalId } } : {}),
-      },
-      select: { id: true },
+    const patients = await searchPatients(prisma, {
+      count: 1,
+      userId,
+      fullName,
+      birthDate,
+      mrnNumber: undefined,
+      nationalId,
     })
 
-    if (duplicatePatient && duplicatePatient.id !== patientId) {
+    if (patients[0] && patients[0].id !== patientId) {
       throw new Error("A patient with similar information already exists.")
     }
 
@@ -45,8 +52,6 @@ export async function updatePatient({
       },
       select: {
         id: true,
-        fullName: true,
-        mrnNumber: true,
       },
     })
   })
@@ -54,23 +59,7 @@ export async function updatePatient({
 
 export async function deletePatient({ userId, patientId }: z.infer<typeof DeletePatientSchema>) {
   return await prisma.$transaction(async (tx) => {
-    const patient = await tx.patient.findFirst({
-      where: {
-        id: patientId,
-        userId,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        fullName: true,
-        mrnNumber: true,
-        _count: {
-          select: {
-            encounters: true,
-          },
-        },
-      },
-    })
+    const patient = await getPatientEncountersCount(tx, { userId, patientId })
 
     if (!patient) {
       throw new Error("Patient not found.")
@@ -82,28 +71,28 @@ export async function deletePatient({ userId, patientId }: z.infer<typeof Delete
 
     return await tx.patient.update({
       where: {
-        id: patient.id,
+        id: patientId,
+        userId,
+        deletedAt: null,
       },
       data: {
         deletedAt: new Date(),
       },
       select: {
         id: true,
-        fullName: true,
-        mrnNumber: true,
       },
     })
   })
 }
 
 export async function createEncounter({
+  type,
   reason,
   userId,
   unitId,
   patientId,
   providerId,
   coverageType,
-  encounterType,
 }: z.infer<typeof CreateEncounterSchema>) {
   const now = new Date()
   const period = buildEncounterPeriod(now)
@@ -131,7 +120,7 @@ export async function createEncounter({
         patientId,
       },
       orderBy: {
-        encounterDateTime: "desc",
+        dateTime: "desc",
       },
       select: {
         id: true,
@@ -189,29 +178,24 @@ export async function createEncounter({
       },
     })
 
-    const encounterNo = buildEncounterNo(period, encounterCounter.sequence)
+    const no = buildEncounterNo(period, encounterCounter.sequence)
 
     try {
       const encounter = await tx.encounter.create({
         data: {
+          no,
+          type,
           reason: reason,
           unitId: unitId,
           period,
           sequence: encounterCounter.sequence,
           patientId: patientId,
           providerId: providerId,
-          encounterNo,
           coverageType,
-          encounterType,
         },
         select: {
           id: true,
-          period: true,
-          status: true,
-          sequence: true,
           patientId: true,
-          encounterNo: true,
-          encounterDateTime: true,
         },
       })
 
@@ -223,5 +207,127 @@ export async function createEncounter({
 
       throw error
     }
+  })
+}
+
+export async function completeEncounter({ userId, patientId, encounterId }: z.infer<typeof CompleteEncounterSchema>) {
+  return await prisma.encounter.update({
+    where: {
+      id: encounterId,
+      patient: {
+        id: patientId,
+        user: { id: userId },
+        deletedAt: null,
+      },
+      deletedAt: null,
+    },
+    data: {
+      status: "COMPLETED",
+    },
+    select: {
+      id: true,
+      patient: {
+        select: {
+          id: true,
+          userId: true,
+        },
+      },
+    },
+  })
+}
+
+export async function cancelEncounter({ userId, patientId, encounterId }: z.infer<typeof CancelEncounterSchema>) {
+  return await prisma.encounter.update({
+    where: {
+      id: encounterId,
+      patient: {
+        id: patientId,
+        user: { id: userId },
+        deletedAt: null,
+      },
+      deletedAt: null,
+    },
+    data: {
+      status: "CANCELLED",
+    },
+    select: {
+      id: true,
+      patient: {
+        select: {
+          id: true,
+          userId: true,
+        },
+      },
+    },
+  })
+}
+
+export async function updateEncounter({
+  type,
+  reason,
+  unitId,
+  userId,
+  patientId,
+  providerId,
+  encounterId,
+  coverageType,
+}: z.infer<typeof UpdateEncounterSchema>) {
+  return prisma.$transaction(async (tx) => {
+    const [unit, provider] = await Promise.all([
+      tx.unit.findFirst({
+        where: {
+          id: unitId,
+          isActive: true,
+        },
+        select: {
+          id: true,
+        },
+      }),
+      tx.provider.findFirst({
+        where: {
+          id: providerId,
+          isActive: true,
+        },
+        select: {
+          id: true,
+        },
+      }),
+    ])
+
+    if (!unit) {
+      throw new Error("Unit not found.")
+    }
+
+    if (!provider) {
+      throw new Error("Provider not found.")
+    }
+
+    return tx.encounter.update({
+      where: {
+        id: encounterId,
+        patient: {
+          id: patientId,
+          user: { id: userId },
+          deletedAt: null,
+        },
+        deletedAt: null,
+      },
+      data: {
+        unitId,
+        providerId,
+        reason,
+        coverageType,
+        type,
+      },
+      select: {
+        id: true,
+        patient: {
+          select: {
+            id: true,
+            userId: true,
+          },
+        },
+      },
+    })
   })
 }

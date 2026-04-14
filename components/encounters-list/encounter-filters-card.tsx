@@ -3,10 +3,10 @@
 import { Button } from "../ui/button"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Clock3, RotateCcw, Search } from "lucide-react"
 import { useDebouncedCallback } from "use-debounce"
+import { Clock3, RotateCcw, Search } from "lucide-react"
 import { EncounterStatus, EncounterType } from "@/generated/prisma/enums"
-import { getGetEncounterUnitOptionsAction } from "@/features/patient-context/api/query"
+import { getGetEncounterUnitsActionOptions } from "@/features/patient-context/api/query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
@@ -57,7 +57,7 @@ export default function EncounterFiltersCard({
     router.replace(`${pathname}?${params.toString()}`)
   }
 
-  const { data } = useQuery(getGetEncounterUnitOptionsAction())
+  const { data: units } = useQuery(getGetEncounterUnitsActionOptions())
 
   const handleReset = () => {
     setUnit("")
@@ -153,7 +153,7 @@ export default function EncounterFiltersCard({
                 <SelectValue placeholder="Select Unit..." />
               </SelectTrigger>
               <SelectContent>
-                {data?.map((unit) => (
+                {units?.map((unit) => (
                   <SelectItem key={unit.id} value={unit.id}>
                     {unit.name}
                   </SelectItem>

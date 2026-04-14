@@ -1,31 +1,27 @@
 "use server"
 
-import { z } from "zod"
-import { auth } from "@/auth"
+import z from "zod"
+
 import { createPatient } from "../dals/mutation"
-import { CreatePatientActionSchema } from "../schema"
+import { requireAuthUser } from "@/lib/require-auth-user"
+import { CreatePatientActionSchema, CreatePatientSchema } from "../schema"
 
 export async function createPatientAction(params: z.infer<typeof CreatePatientActionSchema>) {
   // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
-  }
+  const user = await requireAuthUser()
 
   // Payload validation
-  const parsedData = CreatePatientActionSchema.safeParse(params)
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
-  }
-
-  const { birthDate, fullName, sex, address, email, phone, nationalId } = parsedData.data
+  const { birthDate, fullName, sex, address, email, phone, nationalId, userId } = CreatePatientSchema.parse({
+    ...params,
+    userId: user.id,
+  })
 
   // DAL
   const patient = await createPatient({
     sex,
     email,
     phone,
-    userId: session.user.id,
+    userId,
     address,
     fullName,
     birthDate,

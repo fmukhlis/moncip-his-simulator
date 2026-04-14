@@ -1,6 +1,3 @@
-import React from "react"
-
-import { generateBreadcrumb } from "./generate-breadcrumb"
 import { BookSearch, CalendarCog, LayoutDashboard, UserPlus } from "lucide-react"
 
 export type DataProps = {
@@ -30,5 +27,3 @@ export const DATA = {
     // },
   ],
 } as Record<"main" | "operations", DataProps[]>
-
-export const BREADCRUMB_DATA = Object.fromEntries(generateBreadcrumb(Object.values(DATA)))

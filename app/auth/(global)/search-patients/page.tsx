@@ -1,4 +1,3 @@
-import React from "react"
 import SearchPatientsResult from "@/components/search-patients/search-patients-result"
 import SearchPatientsFilters from "@/components/search-patients/search-patients-filters"
 

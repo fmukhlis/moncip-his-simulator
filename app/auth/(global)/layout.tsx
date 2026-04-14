@@ -1,10 +1,8 @@
-import React from "react"
 import ThemeToggler from "@/components/theme-toggler"
 import AppBreadcrumb from "@/components/app-breadcrumb"
 
 import { Separator } from "@/components/ui/separator"
 import { GlobalSidebar } from "@/components/global-sidebar"
-import { BREADCRUMB_DATA } from "@/lib/navigation-data"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function GlobalLayout({ children }: { children: React.ReactNode }) {
@@ -16,7 +14,7 @@ export default function GlobalLayout({ children }: { children: React.ReactNode }
           <div className="flex w-full items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
-            <AppBreadcrumb breadcrumbData={BREADCRUMB_DATA} />
+            <AppBreadcrumb />
             <ThemeToggler className="ml-auto" />
           </div>
         </header>

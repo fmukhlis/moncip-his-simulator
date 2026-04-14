@@ -1,29 +1,34 @@
-import { z } from "zod"
+import z from "zod"
+
+import { requiredCuid2 } from "@/lib/custom-zod-types"
 
 // #######################################################################
 // ############################ SearchPatients ###########################
 
-const SearchPatientsBase = z.object({
-  count: z.number().positive().optional(),
-  userId: z.string().cuid2(),
-  fullName: z.string().trim().min(1).optional(),
-  birthDate: z.coerce.date().optional(),
-  nationalId: z.string().trim().regex(/^\d+$/, "National ID must be numeric").optional(),
-})
-
-export const SearchPatientsSchema = SearchPatientsBase.extend({ mrnNumber: z.number().optional() }).refine(
-  (data) => data.mrnNumber || data.birthDate || data.fullName || data.nationalId,
-  {
+export const SearchPatientsActionSchema = z
+  .strictObject({
+    count: z.number().positive(),
+    fullName: z.string().trim(),
+    birthDate: z.coerce.date().optional(),
+    mrnNumber: z.string().trim(),
+    nationalId: z.string().trim().regex(/^\d*$/, "National ID must be numeric"),
+  })
+  .refine((data) => data.mrnNumber || data.birthDate || data.fullName || data.nationalId, {
     message: "At least one search field must be provided",
     path: ["mrnNumber"],
-  }
-)
+  })
 
-export const SearchPatientsActionSchema = SearchPatientsBase.omit({ userId: true })
-  .extend({
-    mrn: z.string().trim().min(1).optional(),
-  })
-  .refine((data) => data.mrn || data.birthDate || data.fullName || data.nationalId, {
-    message: "At least one search field must be provided",
-    path: ["mrn"],
-  })
+export const SearchPatientsSchema = SearchPatientsActionSchema.extend({
+  userId: requiredCuid2("User"),
+}).transform((value) => {
+  const numericMRN = value?.mrnNumber ? value.mrnNumber.match(/\d+/) : undefined
+
+  return {
+    count: value.count,
+    userId: value.userId,
+    fullName: value.fullName ? value.fullName : undefined,
+    birthDate: value.birthDate,
+    mrnNumber: numericMRN ? Number(numericMRN) : undefined,
+    nationalId: value.nationalId ? value.nationalId : undefined,
+  }
+})

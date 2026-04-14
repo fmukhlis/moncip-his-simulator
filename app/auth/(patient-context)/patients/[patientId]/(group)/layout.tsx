@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { getQueryClient } from "@/app/get-query-client"
 import { PatientContextSidebar } from "@/components/patient-context-sidebar"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
-import { getGetPatientOverviewActionOptions } from "@/features/patient-context/api/query"
+import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
 import { LayoutGrid, NotepadText, ScrollText } from "lucide-react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
@@ -26,21 +26,21 @@ function generateSidebarData(patientId: string) {
 }
 
 export default async function PatientContextLayout({
-  children,
   params,
+  children,
 }: {
+  params: Promise<{ patientId: string }>
   children: React.ReactNode
-  params: Promise<{ patientId: string; encounterId: string }>
 }) {
-  const { patientId, encounterId } = await params
+  const { patientId } = await params
 
   const DATA = generateSidebarData(patientId)
 
   const queryClient = getQueryClient()
 
-  try {
-    await queryClient.fetchQuery(getGetPatientOverviewActionOptions(patientId))
-  } catch (error) {
+  const patient = await queryClient.fetchQuery(getGetPatientDetailActionOptions({ patientId }))
+
+  if (!patient) {
     notFound()
   }
 
@@ -53,7 +53,7 @@ export default async function PatientContextLayout({
             <div className="flex w-full items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
-              <AppBreadcrumb />
+              <AppBreadcrumb dynamicSidebarData={Object.values(DATA).flat(9)} />
               <ThemeToggler className="ml-auto" />
             </div>
           </header>

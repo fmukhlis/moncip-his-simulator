@@ -1,12 +1,11 @@
 "use client"
 
-import React from "react"
-
 import { X } from "lucide-react"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { format } from "date-fns"
 import { Calendar } from "../ui/calendar"
+import { useState } from "react"
 import { useSearchPatientsStore } from "@/providers/search-patients-store-provider"
 import { Field, FieldGroup, FieldLabel } from "../ui/field"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
@@ -14,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 export default function SearchPatientsFilters() {
   const { filters, setFilters } = useSearchPatientsStore((state) => state)
 
-  const [birthDateCalendarOpen, setBirthDateCalendarOpen] = React.useState(false)
+  const [birthDateCalendarOpen, setBirthDateCalendarOpen] = useState(false)
 
   return (
     <FieldGroup className="gap-3">
@@ -37,9 +36,9 @@ export default function SearchPatientsFilters() {
           <div className="flex flex-col gap-2">
             <Input
               id="search-patients-mrn"
-              value={filters.mrn}
+              value={filters.mrnNumber}
               onChange={(e) => {
-                setFilters({ mrn: e.target.value })
+                setFilters({ mrnNumber: e.target.value })
               }}
               placeholder="Enter patient's mrn"
             />
@@ -85,9 +84,9 @@ export default function SearchPatientsFilters() {
           <Button
             onClick={() => {
               setFilters({
-                mrn: "",
                 fullName: "",
                 birthDate: undefined,
+                mrnNumber: "",
                 nationalId: "",
               })
             }}

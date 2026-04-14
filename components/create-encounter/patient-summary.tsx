@@ -6,14 +6,29 @@ import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
 import { formatAge } from "@/lib/utils"
 import { Field, FieldLabel } from "../ui/field"
-import { getGetCreateEncounterPageDataActionOptions } from "@/features/patient-context/api/query"
+import { useEffect, useState } from "react"
+import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 
-export default function PatientSummary({ patientId }: { patientId: string }) {
-  const { data } = useQuery(getGetCreateEncounterPageDataActionOptions(patientId))
+const GENDER_LABEL = {
+  M: "Male",
+  F: "Female",
+}
 
-  if (!data) {
-    return <div>Data not found</div>
+export default function PatientSummary({ patientId }: { patientId: string }) {
+  const { data: patient } = useQuery(getGetPatientDetailActionOptions({ patientId }))
+
+  const [patientAge, setPatientAge] = useState("")
+  const [patientBirthDate, setPatientBirthDate] = useState("")
+
+  useEffect(() => {
+    const birthDate = patient?.birthDate ? new Date(patient.birthDate) : null
+    setPatientAge(birthDate ? formatAge(birthDate) : "")
+    setPatientBirthDate(birthDate ? format(birthDate, "dd MMM yyyy") : "")
+  }, [setPatientBirthDate, patient?.birthDate, formatAge, format])
+
+  if (!patient) {
+    return <></>
   }
 
   return (
@@ -29,27 +44,27 @@ export default function PatientSummary({ patientId }: { patientId: string }) {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <Field>
             <FieldLabel>Name</FieldLabel>
-            <Input value={data.patient.fullName} readOnly />
+            <Input value={patient.fullName} readOnly />
           </Field>
 
           <Field>
             <FieldLabel>MRN</FieldLabel>
-            <Input value={`MRN-${data.patient.mrnNumber.toString().padStart(6, "0")}`} readOnly />
+            <Input value={`MRN-${patient.mrnNumber.toString().padStart(6, "0")}`} readOnly />
           </Field>
 
           <Field>
             <FieldLabel>Sex</FieldLabel>
-            <Input value={data.patient.sex === "M" ? "Male" : "Female"} readOnly />
+            <Input value={GENDER_LABEL[patient.sex]} readOnly />
           </Field>
 
           <Field>
             <FieldLabel>Birth Date</FieldLabel>
-            <Input value={format(new Date(data.patient.birthDate), "dd MMM yyyy, HH:mm")} readOnly />
+            <Input value={patientBirthDate} readOnly />
           </Field>
 
           <Field>
             <FieldLabel>Age</FieldLabel>
-            <Input value={formatAge(new Date(data.patient.birthDate))} readOnly />
+            <Input value={patientAge} readOnly />
           </Field>
         </div>
       </CardContent>

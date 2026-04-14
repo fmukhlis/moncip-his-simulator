@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import React from "react"
 
 import { DataProps } from "@/lib/navigation-data"
 import { usePathname } from "next/navigation"

@@ -1,36 +1,45 @@
 "use server"
 
-import { z } from "zod"
-import { auth } from "@/auth"
-import { createEncounter, deletePatient, updatePatient } from "../dals/mutation"
+import z from "zod"
+
+import { requireAuthUser } from "@/lib/require-auth-user"
 import {
+  deletePatient,
+  updatePatient,
+  cancelEncounter,
+  createEncounter,
+  updateEncounter,
+  completeEncounter,
+} from "../dals/mutation"
+import {
+  DeletePatientSchema,
+  UpdatePatientSchema,
+  CancelEncounterSchema,
   CreateEncounterSchema,
+  UpdateEncounterSchema,
+  CompleteEncounterSchema,
   DeletePatientActionSchema,
   UpdatePatientActionSchema,
+  CancelEncounterActionSchema,
   CreateEncounterActionSchema,
+  UpdateEncounterActionSchema,
+  CompleteEncounterActionSchema,
 } from "../schema"
 
 export async function updatePatientAction(params: z.infer<typeof UpdatePatientActionSchema>) {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
-  }
+  const user = await requireAuthUser()
 
-  // Payload validation
-  const parsedData = UpdatePatientActionSchema.safeParse(params)
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
-  }
+  const { birthDate, fullName, sex, address, email, phone, nationalId, patientId, userId } = UpdatePatientSchema.parse({
+    ...params,
+    userId: user.id,
+    patientId: params.patientId,
+  })
 
-  const { birthDate, fullName, sex, address, email, phone, nationalId, patientId } = parsedData.data
-
-  // DAL
-  const patient = await updatePatient({
+  const queryResponse = await updatePatient({
     sex,
     email,
     phone,
-    userId: session.user.id,
+    userId,
     address,
     fullName,
     patientId,
@@ -38,58 +47,76 @@ export async function updatePatientAction(params: z.infer<typeof UpdatePatientAc
     nationalId,
   })
 
-  return { ...patient }
+  return { data: queryResponse }
 }
 
 export async function deletePatientAction(params: z.infer<typeof DeletePatientActionSchema>) {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
-  }
+  const user = await requireAuthUser()
 
-  // Payload validation
-  const parsedData = DeletePatientActionSchema.safeParse(params)
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
-  }
+  const { patientId, userId } = DeletePatientSchema.parse({ ...params, userId: user.id })
 
-  const { patientId } = parsedData.data
+  const queryResponse = await deletePatient({ userId, patientId })
 
-  // DAL
-  const patient = await deletePatient({
-    userId: session.user.id,
-    patientId,
-  })
-
-  return { ...patient }
+  return { data: queryResponse }
 }
 
 export async function createEncounterAction(params: z.infer<typeof CreateEncounterActionSchema>) {
-  // Authentication
-  const session = await auth()
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Unauthenticated.")
-  }
+  const user = await requireAuthUser()
 
-  // Payload validation
-  const parsedData = CreateEncounterSchema.safeParse({ ...params, userId: session.user.id })
-  if (!parsedData.success) {
-    throw new Error("Data is invalid.")
-  }
+  const { unitId, patientId, providerId, coverageType, type, reason, userId } = CreateEncounterSchema.parse({
+    ...params,
+    userId: user.id,
+  })
 
-  const { unitId, patientId, providerId, coverageType, encounterType, reason, userId } = parsedData.data
-
-  // DAL
-  const patient = await createEncounter({
+  const queryResponse = await createEncounter({
+    type,
     reason,
     unitId,
     userId,
     patientId,
     providerId,
     coverageType,
-    encounterType,
   })
 
-  return { ...patient }
+  return { data: queryResponse }
+}
+
+export async function completeEncounterAction(params: z.infer<typeof CompleteEncounterActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { encounterId, patientId, userId } = CompleteEncounterSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await completeEncounter({ userId, patientId, encounterId })
+
+  return { data: queryResponse }
+}
+
+export async function cancelEncounterAction(params: z.infer<typeof CancelEncounterActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { encounterId, patientId, userId } = CancelEncounterSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await cancelEncounter({ userId, patientId, encounterId })
+
+  return { data: queryResponse }
+}
+
+export async function updateEncounterAction(params: z.infer<typeof UpdateEncounterActionSchema>) {
+  const user = await requireAuthUser()
+
+  const { unitId, patientId, providerId, coverageType, type, reason, userId, encounterId } =
+    UpdateEncounterSchema.parse({ ...params, userId: user.id })
+
+  const queryResponse = await updateEncounter({
+    type,
+    reason,
+    unitId,
+    userId,
+    patientId,
+    providerId,
+    encounterId,
+    coverageType,
+  })
+
+  return { data: queryResponse }
 }

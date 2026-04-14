@@ -16,12 +16,15 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { CreateEncounterActionSchema } from "@/features/patient-context/schema"
 import { getCreateEncounterActionOptions } from "@/features/patient-context/api/mutation"
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
-import { getGetCreateEncounterPageDataActionOptions } from "@/features/patient-context/api/query"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
+import {
+  getGetEncounterUnitsActionOptions,
+  getGetEncounterProvidersActionOptions,
+} from "@/features/patient-context/api/query"
 
-const encounterTypeOptions = [
+const typeOptions = [
   { value: "OPD", label: "Outpatient" },
   { value: "IPD", label: "Inpatient" },
   { value: "ER", label: "Emergency" },
@@ -34,19 +37,20 @@ const coverageTypeOptions = [
 ]
 
 export function CreateEncounterForm({ patientId }: { patientId: string }) {
-  const { data } = useQuery(getGetCreateEncounterPageDataActionOptions(patientId))
+  const { data: encounterUnits } = useQuery(getGetEncounterUnitsActionOptions())
+  const { data: encounterProviders } = useQuery(getGetEncounterProvidersActionOptions())
 
   const mutation = useMutation(getCreateEncounterActionOptions())
 
   const form = useForm({
     resolver: zodResolver(CreateEncounterActionSchema),
     defaultValues: {
+      type: "",
       reason: "",
       unitId: "",
       patientId,
       providerId: "",
       coverageType: "",
-      encounterType: "",
     },
   })
 
@@ -56,11 +60,11 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
 
   async function onSubmit(data: z.infer<typeof CreateEncounterActionSchema>) {
     try {
-      await mutation.mutateAsync({
+      const res = await mutation.mutateAsync({
         ...data,
       })
       toast.success("Encounter created successfully")
-      router.replace(`/auth/patients/${patientId}/encounters`)
+      router.replace(`/auth/patients/${patientId}/encounters/${res.id}`)
     } catch (err) {
       if (err instanceof Error) {
         toast.error("Something went wrong", { description: err.message })
@@ -77,7 +81,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
       <CardHeader>
         <CardTitle className="font-semibold">Create Encounter</CardTitle>
         <CardDescription>
-          All fields marked with <span className="text-destructive">*</span> are required for encounter creation.
+          All fields marked with <span className="text-destructive">*</span> are required to create the encounter.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -96,7 +100,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
               <FieldDescription>Core encounter information.</FieldDescription>
               <FieldGroup className="grid gap-4 md:grid-cols-2">
                 <Controller
-                  name="encounterType"
+                  name="type"
                   render={({ field: { onChange, value }, fieldState }) => (
                     <Field>
                       <FieldLabel htmlFor="encounter-type">
@@ -107,7 +111,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
                           <SelectValue placeholder="Select encounter type..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {encounterTypeOptions.map((option) => (
+                          {typeOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
@@ -150,7 +154,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
                           <SelectValue placeholder="Select unit" />
                         </SelectTrigger>
                         <SelectContent>
-                          {data?.units.map((unit) => (
+                          {encounterUnits?.map((unit) => (
                             <SelectItem key={unit.id} value={unit.id}>
                               {unit.name}
                             </SelectItem>
@@ -175,7 +179,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
                           <SelectValue placeholder="Select provider" />
                         </SelectTrigger>
                         <SelectContent>
-                          {data?.providers.map((provider) => (
+                          {encounterProviders?.map((provider) => (
                             <SelectItem key={provider.id} value={provider.id}>
                               {provider.name}
                             </SelectItem>

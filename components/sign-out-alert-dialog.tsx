@@ -1,12 +1,11 @@
 "use client"
 
-import React from "react"
-
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
 import { Spinner } from "./ui/spinner"
 import { signOutAction } from "@/features/authentication/actions/mutation"
 import { LogOut, LogOutIcon } from "lucide-react"
+import { startTransition, useActionState } from "react"
 import { AlertDialogMedia, AlertDialogTrigger } from "./ui/alert-dialog"
 import {
   AlertDialogTitle,
@@ -29,10 +28,10 @@ export function SignOutAlertDialogTrigger({ className, ...props }: React.Compone
 }
 
 export function SignOutAlertDialogContent() {
-  const [state, dispatchAction, isPending] = React.useActionState(signOutAction, false)
+  const [state, dispatchAction, isPending] = useActionState(signOutAction, false)
 
   const handleClick = () => {
-    React.startTransition(() => {
+    startTransition(() => {
       dispatchAction()
     })
   }

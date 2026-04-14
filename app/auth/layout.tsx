@@ -1,5 +1,3 @@
-import React from "react"
-
 import { auth } from "@/auth"
 import { SessionProvider } from "next-auth/react"
 

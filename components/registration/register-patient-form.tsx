@@ -1,19 +1,18 @@
 "use client"
+import z from "zod"
 
-import React from "react"
-
-import { z } from "zod"
 import { Input } from "../ui/input"
 import { toast } from "sonner"
 import { Button } from "../ui/button"
 import { Spinner } from "../ui/spinner"
 import { Calendar } from "../ui/calendar"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useMutation } from "@tanstack/react-query"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, startOfDay } from "date-fns"
 import { Controller, useForm } from "react-hook-form"
-import { CreatePatientFormSchema } from "@/features/registration/schema"
+import { CreatePatientActionSchema } from "@/features/registration/schema"
 import { getCreatePatientActionOptions } from "@/features/registration/api/mutation"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
@@ -23,7 +22,7 @@ export default function RegisterPatientForm() {
   const mutation = useMutation(getCreatePatientActionOptions())
 
   const form = useForm({
-    resolver: zodResolver(CreatePatientFormSchema),
+    resolver: zodResolver(CreatePatientActionSchema),
     defaultValues: {
       fullName: "",
       sex: "M",
@@ -39,9 +38,9 @@ export default function RegisterPatientForm() {
 
   const router = useRouter()
 
-  const [birthDateCalendarOpen, setBirthDateCalendarOpen] = React.useState(false)
+  const [birthDateCalendarOpen, setBirthDateCalendarOpen] = useState(false)
 
-  const onSubmit = async (data: z.infer<typeof CreatePatientFormSchema>) => {
+  const onSubmit = async (data: z.infer<typeof CreatePatientActionSchema>) => {
     try {
       const res = await mutation.mutateAsync(data)
       form.reset()

@@ -1,8 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import React from "react"
 
+import { Fragment } from "react"
+import { DATA, DataProps } from "@/lib/navigation-data"
+import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
+import { useParams, usePathname } from "next/navigation"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,11 +14,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb"
-import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
-import { useParams, usePathname } from "next/navigation"
-import { LayoutGrid, NotepadText, ScrollText } from "lucide-react"
 
-export default function AppBreadcrumb() {
+export default function AppBreadcrumb({ dynamicSidebarData }: { dynamicSidebarData?: DataProps[] }) {
   const { patientId, encounterId } = useParams<{ patientId: string; encounterId: string }>()
 
   const pathname = usePathname()
@@ -23,13 +23,9 @@ export default function AppBreadcrumb() {
   const BREADCRUMB_DATA = Object.fromEntries(
     generateBreadcrumb([
       [
-        { title: "Overview", url: `/auth/patients/${patientId}/overview`, icon: <LayoutGrid /> },
-        {
-          title: "Encounters",
-          url: `/auth/patients/${patientId}/encounters`,
-          icon: <ScrollText />,
-        },
-        { title: "Lab. Orders", url: `/auth/patients/${patientId}/lab-orders`, icon: <NotepadText /> },
+        ...Object.values(DATA).flat(9),
+        ...(dynamicSidebarData ? dynamicSidebarData : []),
+
         { title: "Edit Patient", url: `/auth/patients/${patientId}/overview/edit`, icon: <></> },
         {
           title: "Encounters",
@@ -56,14 +52,14 @@ export default function AppBreadcrumb() {
               <BreadcrumbPage>{title}</BreadcrumbPage>
             </BreadcrumbItem>
           ) : (
-            <React.Fragment key={title}>
+            <Fragment key={title}>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink asChild>
                   <Link href={url ?? ""}>{title}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-            </React.Fragment>
+            </Fragment>
           )
         })}
       </BreadcrumbList>

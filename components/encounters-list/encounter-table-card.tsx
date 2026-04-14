@@ -9,7 +9,7 @@ import { Separator } from "../ui/separator"
 import { BasicTable } from "../ui/basic-table"
 import { ComponentProps } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
-import { getGetEncounterListActionOptions } from "@/features/patient-context/api/query"
+import { getGetPatientEncountersActionOptions } from "@/features/patient-context/api/query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "../ui/card"
 
@@ -26,7 +26,7 @@ export function EncounterTableCard({
   }
 }) {
   const { data, isFetching } = useQuery(
-    getGetEncounterListActionOptions({
+    getGetPatientEncountersActionOptions({
       q: filters.q,
       page: filters.page,
       type: filters.type,

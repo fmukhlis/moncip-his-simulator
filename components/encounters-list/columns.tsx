@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { format } from "date-fns"
-import { getEncounterListAction } from "@/features/patient-context/actions/query"
+import { getPatientEncountersAction } from "@/features/patient-context/actions/query"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { CalendarClock, Hospital, MoreHorizontal, Stethoscope } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
@@ -36,17 +36,17 @@ function getStatusBadge(status: string) {
   )
 }
 
-type Encounter = Awaited<ReturnType<typeof getEncounterListAction>>["data"]["items"][number]
+type Encounter = Awaited<ReturnType<typeof getPatientEncountersAction>>["data"]["items"][number]
 
 const columnHelper = createColumnHelper<Encounter>()
 
 export const columns = [
-  columnHelper.accessor("encounterNo", {
+  columnHelper.accessor("no", {
     header: () => <div>Encounter No</div>,
     cell: ({ getValue }) => <div>{getValue()}</div>,
     size: 150,
   }),
-  columnHelper.accessor("encounterType", {
+  columnHelper.accessor("type", {
     header: () => <div className="text-center">Encounter Type</div>,
     cell: ({ getValue }) => (
       <div className="text-center">
@@ -79,7 +79,7 @@ export const columns = [
     ),
     size: 999,
   }),
-  columnHelper.accessor("encounterDateTime", {
+  columnHelper.accessor("dateTime", {
     header: () => <div>Encounter Date</div>,
     cell: ({ getValue }) => (
       <div>

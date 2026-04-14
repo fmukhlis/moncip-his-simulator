@@ -1,7 +1,9 @@
 "use server"
 
-import { z } from "zod"
+import z from "zod"
+
 import { prisma } from "@/lib/prisma"
+import { searchPatients } from "@/features/search-patients/dals/query"
 import { CreatePatientSchema } from "../schema"
 
 export async function createPatient({
@@ -12,18 +14,16 @@ export async function createPatient({
   ...rest
 }: z.infer<typeof CreatePatientSchema>) {
   return await prisma.$transaction(async (tx) => {
-    const duplicatePatient = await tx.patient.findFirst({
-      where: {
-        user: { id: userId },
-        deletedAt: null,
-        ...(fullName ? { fullName: { equals: fullName, mode: "insensitive" } } : {}),
-        ...(birthDate ? { birthDate: { equals: new Date(birthDate) } } : {}),
-        ...(nationalId ? { nationalId: { equals: nationalId } } : {}),
-      },
-      select: { id: true },
+    const patients = await searchPatients(tx, {
+      count: 1,
+      userId,
+      fullName,
+      birthDate,
+      nationalId,
+      mrnNumber: undefined,
     })
 
-    if (duplicatePatient) {
+    if (patients[0]) {
       throw new Error("A patient with similar information already exists.")
     }
 
@@ -36,11 +36,11 @@ export async function createPatient({
     return await tx.patient.create({
       data: {
         ...rest,
+        user: { connect: { id: userId } },
         fullName,
         birthDate,
-        nationalId,
         mrnNumber: (lastPatient?.mrnNumber ?? 0) + 1,
-        user: { connect: { id: userId } },
+        nationalId,
       },
       select: {
         id: true,

@@ -1,6 +1,7 @@
 "use client"
 
-import { z } from "zod"
+import z from "zod"
+
 import { Input } from "../ui/input"
 import { toast } from "sonner"
 import { Button } from "../ui/button"
@@ -12,28 +13,24 @@ import { format, startOfDay } from "date-fns"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { UpdatePatientFormSchema } from "@/features/patient-context/schema"
+import { UpdatePatientActionSchema } from "@/features/patient-context/schema"
 import { getUpdatePatientActionOptions } from "@/features/patient-context/api/mutation"
-import { getGetPatientOverviewActionOptions } from "@/features/patient-context/api/query"
+import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 export default function EditPatientForm({ patientId }: { patientId: string }) {
-  const { data } = useQuery(getGetPatientOverviewActionOptions(patientId))
+  const { data: patient } = useQuery(getGetPatientDetailActionOptions({ patientId }))
 
-  // Already checked in the layout (see app/auth/(patient-context)/patients/[patientId]/layout.tsx).
-  // If patient is not found, it will redirect to 404 even before this component is rendered.
-  if (!data) {
-    return <div>Data not found</div>
+  if (!patient) {
+    return <></>
   }
-
-  const { patient } = data
 
   const mutation = useMutation(getUpdatePatientActionOptions())
 
   const form = useForm({
-    resolver: zodResolver(UpdatePatientFormSchema),
+    resolver: zodResolver(UpdatePatientActionSchema),
     defaultValues: {
       patientId,
       fullName: patient.fullName,
@@ -52,7 +49,7 @@ export default function EditPatientForm({ patientId }: { patientId: string }) {
 
   const [birthDateCalendarOpen, setBirthDateCalendarOpen] = useState(false)
 
-  const onSubmit = async (data: z.infer<typeof UpdatePatientFormSchema>) => {
+  const onSubmit = async (data: z.infer<typeof UpdatePatientActionSchema>) => {
     try {
       await mutation.mutateAsync(data)
       toast.success("Patient updated successfully")
@@ -69,8 +66,8 @@ export default function EditPatientForm({ patientId }: { patientId: string }) {
   }
 
   useEffect(() => {
-    setValue("birthDate", startOfDay(patient.birthDate))
-  }, [setValue, patient.birthDate])
+    setValue("birthDate", startOfDay(new Date(patient.birthDate)))
+  }, [setValue, startOfDay, patient.birthDate])
 
   return (
     <form id="edit-patient-form" onSubmit={handleSubmit(onSubmit)}>

@@ -6,7 +6,7 @@ import { SearchPatientsActionSchema } from "../schema"
 
 export const getSearchPatientsActionOptions = (params: z.input<typeof SearchPatientsActionSchema>) =>
   queryOptions({
-    queryKey: ["patients", "search", params],
+    queryKey: ["patient-search", params],
     queryFn: async () => {
       const response = await searchPatientsAction(params)
       return response

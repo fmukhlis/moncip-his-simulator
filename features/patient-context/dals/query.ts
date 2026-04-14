@@ -2,198 +2,150 @@
 
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
-import { formatISO } from "date-fns"
-import { ActiveEncounterExistsError } from "@/lib/custom-errors/active-encounter-exists-error"
-import { GetCreateEncounterPageDataSchema, GetEncounterListSchema, GetPatientOverviewSchema } from "../schema"
 import { Prisma } from "@/generated/prisma/client"
+import {
+  GetLastEncounterSchema,
+  GetPatientDetailSchema,
+  GetActiveEncounterSchema,
+  GetEncounterDetailSchema,
+  GetPatientEncountersSchema,
+  GetPatientEncountersCountSchema,
+} from "../schema"
 
-export async function getPatientOverview({ patientId, userId }: z.infer<typeof GetPatientOverviewSchema>) {
-  const [patient, activeEncounter, lastEncounter] = await Promise.all([
-    prisma.patient.findUnique({
-      where: { id: patientId, userId, deletedAt: null },
-      select: {
-        id: true,
-        sex: true,
-        phone: true,
-        email: true,
-        address: true,
-        fullName: true,
-        mrnNumber: true,
-        birthDate: true,
-        nationalId: true,
-      },
-    }),
-    prisma.encounter.findFirst({
-      where: {
-        patientId,
-        status: "ACTIVE",
-      },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        unit: {
-          select: {
-            name: true,
-          },
-        },
-        status: true,
-        reason: true,
-        provider: {
-          select: {
-            name: true,
-          },
-        },
-        encounterNo: true,
-        encounterType: true,
-        encounterDateTime: true,
-      },
-    }),
-    prisma.encounter.findFirst({
-      where: {
-        patientId,
-        status: { in: ["COMPLETED", "CANCELLED"] },
-      },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        unit: {
-          select: {
-            name: true,
-          },
-        },
-        status: true,
-        reason: true,
-        provider: {
-          select: {
-            name: true,
-          },
-        },
-        encounterNo: true,
-        encounterType: true,
-        encounterDateTime: true,
-      },
-    }),
+type DatabaseClient = typeof prisma
 
-    // prisma.labOrder.count({
-    //   where: { patientId },
-    // }),
-
-    // prisma.labOrder.count({
-    //   where: {
-    //     patientId,
-    //     status: "PENDING",
-    //   },
-    // }),
-
-    // prisma.labOrder.findFirst({
-    //   where: { patientId },
-    //   orderBy: { createdAt: "desc" },
-    //   select: {
-    //     id: true,
-    //     status: true,
-    //     createdAt: true,
-    //     completedAt: true,
-    //   },
-    // }),
-  ])
-
-  if (!patient) return null
-
-  return {
-    patient: { ...patient, birthDate: formatISO(patient.birthDate) },
-    lastEncounter: lastEncounter
-      ? { ...lastEncounter, encounterDateTime: formatISO(lastEncounter.encounterDateTime) }
-      : null,
-    activeEncounter: activeEncounter
-      ? { ...activeEncounter, encounterDateTime: formatISO(activeEncounter.encounterDateTime) }
-      : null,
-    // labSummary: {
-    //   totalOrders,
-    //   pendingOrders,
-    //   lastOrderDate: lastLabOrder?.createdAt ?? null,
-    //   lastResultDate: lastLabOrder?.completedAt ?? null,
-    // },
-  }
+export async function getPatientDetail(
+  db: Pick<DatabaseClient, "patient">,
+  { userId, patientId }: z.infer<typeof GetPatientDetailSchema>
+) {
+  return db.patient.findUnique({
+    where: { id: patientId, userId, deletedAt: null },
+    select: {
+      id: true,
+      sex: true,
+      phone: true,
+      email: true,
+      address: true,
+      fullName: true,
+      mrnNumber: true,
+      birthDate: true,
+      nationalId: true,
+    },
+  })
 }
 
-export async function getCreateEncounterPageData({
-  userId,
-  patientId,
-}: z.infer<typeof GetCreateEncounterPageDataSchema>) {
-  const patient = await prisma.patient.findFirst({
+export async function getActiveEncounter(
+  db: Pick<DatabaseClient, "encounter">,
+  { userId, patientId }: z.infer<typeof GetActiveEncounterSchema>
+) {
+  return db.encounter.findFirst({
+    where: {
+      patient: {
+        id: patientId,
+        userId,
+        deletedAt: null,
+      },
+      status: "ACTIVE",
+      deletedAt: null,
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      no: true,
+      type: true,
+      unit: {
+        select: {
+          name: true,
+        },
+      },
+      status: true,
+      reason: true,
+      provider: {
+        select: {
+          name: true,
+        },
+      },
+      dateTime: true,
+    },
+  })
+}
+
+export async function getLastEncounter(
+  db: Pick<DatabaseClient, "encounter">,
+  { userId, patientId }: z.infer<typeof GetLastEncounterSchema>
+) {
+  return db.encounter.findFirst({
+    where: {
+      patient: {
+        id: patientId,
+        userId,
+        deletedAt: null,
+      },
+      status: { in: ["COMPLETED", "CANCELLED"] },
+      deletedAt: null,
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      no: true,
+      type: true,
+      unit: {
+        select: {
+          name: true,
+        },
+      },
+      status: true,
+      reason: true,
+      provider: {
+        select: {
+          name: true,
+        },
+      },
+      dateTime: true,
+    },
+  })
+}
+
+export async function getPatientEncountersCount(
+  db: Pick<DatabaseClient, "patient">,
+  { userId, patientId }: z.infer<typeof GetPatientEncountersCountSchema>
+) {
+  return db.patient.findFirst({
     where: {
       id: patientId,
       userId,
       deletedAt: null,
     },
     select: {
-      id: true,
-      sex: true,
-      fullName: true,
-      mrnNumber: true,
-      birthDate: true,
+      _count: {
+        select: {
+          encounters: true,
+        },
+      },
     },
   })
-
-  if (!patient) {
-    throw new Error("Patient not found or access denied.")
-  }
-
-  const [activeEncounter, units, providers] = await Promise.all([
-    prisma.encounter.findFirst({
-      where: {
-        status: "ACTIVE",
-        patientId,
-        deletedAt: null,
-      },
-      orderBy: {
-        encounterDateTime: "desc",
-      },
-      select: {
-        id: true,
-      },
-    }),
-    prisma.unit.findMany({
-      where: {
-        isActive: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
-    prisma.provider.findMany({
-      where: {
-        isActive: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
-  ])
-
-  if (activeEncounter) {
-    throw new ActiveEncounterExistsError(activeEncounter.id)
-  }
-
-  return {
-    units,
-    patient: {
-      ...patient,
-      birthDate: formatISO(patient.birthDate),
-    },
-    providers,
-  }
 }
 
-export async function getEncounterList(params: z.infer<typeof GetEncounterListSchema>) {
+export async function getEncounterUnits(db: Pick<DatabaseClient, "unit">) {
+  return db.unit.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  })
+}
+
+export async function getEncounterProviders(db: Pick<DatabaseClient, "provider">) {
+  return db.provider.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  })
+}
+
+export async function getPatientEncounters(
+  db: Pick<DatabaseClient, "encounter">,
+  params: z.infer<typeof GetPatientEncountersSchema>
+) {
   const where: Prisma.EncounterWhereInput = {
     patient: {
       id: params.patientId,
@@ -208,7 +160,7 @@ export async function getEncounterList(params: z.infer<typeof GetEncounterListSc
   }
 
   if (params.type) {
-    where.encounterType = params.type
+    where.type = params.type
   }
 
   if (params.unitId) {
@@ -217,58 +169,61 @@ export async function getEncounterList(params: z.infer<typeof GetEncounterListSc
 
   if (params.q) {
     where.OR = [
+      { no: { contains: params.q, mode: "insensitive" } },
       { unit: { name: { contains: params.q, mode: "insensitive" } } },
       { provider: { name: { contains: params.q, mode: "insensitive" } } },
-      { encounterNo: { contains: params.q, mode: "insensitive" } },
     ]
   }
 
-  const [items, totalCount] = await Promise.all([
-    prisma.encounter.findMany({
+  return Promise.all([
+    db.encounter.findMany({
       where,
       skip: (params.page - 1) * params.pageSize,
       take: params.pageSize,
       select: {
         id: true,
+        no: true,
+        type: true,
         unit: { select: { id: true, name: true } },
         status: true,
         patient: { select: { id: true } },
         provider: { select: { id: true, name: true } },
-        encounterNo: true,
-        encounterType: true,
-        encounterDateTime: true,
+        dateTime: true,
       },
-      orderBy: [{ encounterDateTime: "desc" }, { sequence: "desc" }],
+      orderBy: [{ dateTime: "desc" }, { sequence: "desc" }],
     }),
-    prisma.encounter.count({ where }),
+    db.encounter.count({ where }),
   ])
-
-  const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / params.pageSize)
-
-  return {
-    page: params.page,
-    items: items.map((item) => ({
-      ...item,
-      encounterDateTime: formatISO(item.encounterDateTime),
-    })),
-    pageSize: params.pageSize,
-    totalCount,
-    hasNextPage: params.page < totalPages,
-    hasPreviousPage: params.page > 1,
-  }
 }
 
-export async function getEncounterUnitOptions() {
-  return await prisma.unit.findMany({
+export async function getEncounterDetail(
+  db: Pick<DatabaseClient, "encounter">,
+  params: z.infer<typeof GetEncounterDetailSchema>
+) {
+  return db.encounter.findUnique({
     where: {
-      isActive: true,
-    },
-    orderBy: {
-      name: "asc",
+      id: params.encounterId,
+      patient: {
+        id: params.patientId,
+        user: { id: params.userId },
+        deletedAt: null,
+      },
+      deletedAt: null,
     },
     select: {
       id: true,
-      name: true,
+      no: true,
+      type: true,
+      unit: { select: { id: true, name: true, code: true } },
+      status: true,
+      reason: true,
+      dateTime: true,
+      provider: { select: { id: true, name: true, code: true } },
+      sequence: true,
+      createdAt: true,
+      deletedAt: true,
+      updatedAt: true,
+      coverageType: true,
     },
   })
 }

@@ -181,18 +181,18 @@ model Encounter {
   patientId                     String
   providerId                    String            
 
+  no                            String                     
+  type                          EncounterType
   period                        String
   reason                        String?
   status                        EncounterStatus   @default(ACTIVE)
   sequence                      Int    
-  encounterNo                   String                     
   coverageType                  CoverageType
-  encounterType                 EncounterType
 
   createdAt                     DateTime          @default(now())
   updatedAt                     DateTime          @updatedAt
   deletedAt                     DateTime?
-  encounterDateTime             DateTime          @default(now())
+  dateTime                      DateTime          @default(now())
 
   unit                          Unit              @relation(fields: [unitId], references: [id])
   patient                       Patient           @relation(fields: [patientId], references: [id])
@@ -200,7 +200,7 @@ model Encounter {
 
   labOrders                     LabOrder[]
 
-  @@unique([patientId, encounterNo])
+  @@unique([patientId, no])
 }
 
 model EncounterCounter {
@@ -240,11 +240,11 @@ model LabOrder {
   encounterId        String
   orderingProviderId String
 
+  no                 String          
   period             String
   status             LabOrderStatus  @default(DRAFT)
   priority           OrderPriority   @default(ROUTINE)
   sequence           Int
-  labOrderNo         String          
   clinicalNote       String?
   
   orderedAt          DateTime        @default(now())
@@ -258,7 +258,7 @@ model LabOrder {
   encounter          Encounter       @relation(fields: [encounterId], references: [id])
   orderingProvider   Provider        @relation(fields: [orderingProviderId], references: [id])
 
-  @@unique([userId, labOrderNo])
+  @@unique([userId, no])
   @@index([userId, patientId])
   @@index([userId, encounterId])
   @@index([userId, status])
