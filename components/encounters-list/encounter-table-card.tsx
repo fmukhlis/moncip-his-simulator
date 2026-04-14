@@ -1,6 +1,5 @@
 "use client"
 
-
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
