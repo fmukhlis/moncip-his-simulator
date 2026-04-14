@@ -7,6 +7,8 @@ import eslintPluginNext from "@next/eslint-plugin-next"
 import eslintPluginStorybook from "eslint-plugin-storybook"
 import typescriptEslint from "typescript-eslint"
 
+import pluginQuery from '@tanstack/eslint-plugin-query'
+
 const eslintIgnore = [
   ".git/",
   ".next/",
@@ -23,6 +25,7 @@ const config = typescriptEslint.config(
   {
     ignores: eslintIgnore,
   },
+  ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginStorybook.configs["flat/recommended"],
   //  https://github.com/francoismassart/eslint-plugin-tailwindcss/pull/381
   // ...eslintPluginTailwindcss.configs["flat/recommended"],

@@ -1,0 +1,15 @@
+import z from "zod"
+
+import { queryOptions } from "@tanstack/react-query"
+import { searchPatientsAction } from "../actions/query"
+import { SearchPatientsActionSchema } from "../schema"
+
+export const getSearchPatientsActionOptions = (params: z.input<typeof SearchPatientsActionSchema>) =>
+  queryOptions({
+    queryKey: ["patient-search", params],
+    queryFn: async () => {
+      const response = await searchPatientsAction(params)
+      return response
+    },
+    enabled: SearchPatientsActionSchema.safeParse(params).success,
+  })
