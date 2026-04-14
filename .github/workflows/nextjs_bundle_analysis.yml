@@ -11,6 +11,11 @@ on:
       - develop
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 defaults:
   run:
     # change this if your nextjs app does not live at the root of the repo
