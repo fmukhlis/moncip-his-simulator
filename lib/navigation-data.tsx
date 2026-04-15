@@ -1,4 +1,4 @@
-import { BookSearch, CalendarCog, LayoutDashboard, UserPlus } from "lucide-react"
+import { BookSearch, BriefcaseMedical, CalendarCog, LayoutDashboard, UserPlus } from "lucide-react"
 
 export type DataProps = {
   title: string
@@ -26,4 +26,5 @@ export const DATA = {
     //   ],
     // },
   ],
-} as Record<"main" | "operations", DataProps[]>
+  masterData: [{ title: "Orderable Services", url: "/auth/orderable-services", icon: <BriefcaseMedical /> }],
+} as Record<"main" | "operations" | "masterData", DataProps[]>

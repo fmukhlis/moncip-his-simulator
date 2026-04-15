@@ -8,7 +8,7 @@ export default function SearchPatients() {
   return (
     <SearchPatientsStoreProvider>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <Card className="relative w-full rounded-sm border py-4 shadow">
+        <Card className="relative w-full py-4 shadow">
           <CardHeader className="px-4">
             <CardTitle>
               <h1>Find Patient</h1>
@@ -21,7 +21,7 @@ export default function SearchPatients() {
             <SearchPatientsFilters />
           </CardContent>
         </Card>
-        <Card className="relative w-full rounded-sm border py-4 shadow">
+        <Card className="relative w-full py-4 shadow">
           <CardContent className="px-4">
             <SearchPatientsResult />
           </CardContent>

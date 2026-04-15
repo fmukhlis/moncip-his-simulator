@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 export default function EncounterTableSkeleton() {
   return (
     <>
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden border">
         <Table className="w-full caption-bottom text-xs">
           <TableHeader>
             <TableRow>

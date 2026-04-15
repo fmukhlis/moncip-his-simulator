@@ -7,7 +7,7 @@ export default async function Edit({ params }: { params: Promise<{ patientId: st
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <Card className="relative w-full rounded-sm border py-4 shadow">
+      <Card className="relative w-full py-4 shadow">
         <CardHeader className="px-4 sm:max-w-[calc(100%-250px)]">
           <CardTitle>
             <h1>Edit Patient</h1>

@@ -218,16 +218,16 @@ model OrderableService {
 
   code              String            @unique
   name              String
+  type              OrderableType     
   price             Decimal?          @db.Decimal(12, 2)
   category          String
   description       String?
-  orderableType     OrderableType     
 
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   deletedAt         DateTime?
 
-  labOrderItems LabOrderItem[]
+  labOrderItems     LabOrderItem[]
 }
 
 model LabOrder {
