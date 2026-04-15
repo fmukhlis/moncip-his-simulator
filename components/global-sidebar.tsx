@@ -13,6 +13,7 @@ export function GlobalSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
       <SidebarContent>
         <SideNav data={DATA.main} />
         <SideNav data={DATA.operations} label="Operations" />
+        <SideNav data={DATA.masterData} label="Master Data" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

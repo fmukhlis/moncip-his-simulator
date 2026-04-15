@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { Pool } from "pg"
 import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient } from "../generated/prisma/client"
+import { OrderableType, PrismaClient } from "../generated/prisma/client"
 
 const connectionString = `${process.env.DATABASE_URL}`
 const pool = new Pool({ connectionString })
@@ -50,11 +50,65 @@ async function seedProviders() {
   console.log("✅ Providers seeded")
 }
 
+export async function seedOrderableServices() {
+  const items = [
+    {
+      code: "CBC",
+      name: "Darah Lengkap",
+      type: OrderableType.PANEL,
+      price: "50000",
+      category: "Hematology",
+      description: "Complete blood count",
+    },
+    {
+      code: "GLU-R",
+      name: "Glukosa Sewaktu",
+      type: OrderableType.SINGLE,
+      price: "25000",
+      category: "Chemistry",
+      description: "Pemeriksaan glukosa sewaktu",
+    },
+    {
+      code: "UREUM",
+      name: "Ureum",
+      type: OrderableType.SINGLE,
+      price: "30000",
+      category: "Chemistry",
+      description: "Pemeriksaan ureum serum",
+    },
+    {
+      code: "LFT",
+      name: "Liver Function Test",
+      type: OrderableType.PANEL,
+      price: "120000",
+      category: "Chemistry",
+      description: "Panel fungsi hati",
+    },
+  ]
+
+  for (const item of items) {
+    await prisma.orderableService.upsert({
+      where: { code: item.code },
+      update: {
+        name: item.name,
+        type: item.type,
+        price: item.price,
+        category: item.category,
+        description: item.description,
+      },
+      create: item,
+    })
+  }
+
+  console.log("✅ Orderable services seeded")
+}
+
 async function main() {
   console.log("Seeding started...")
 
   await seedUnits()
   await seedProviders()
+  await seedOrderableServices()
 
   console.log("🎉 Seed completed")
 }
