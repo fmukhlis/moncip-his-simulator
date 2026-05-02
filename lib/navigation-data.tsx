@@ -22,7 +22,7 @@ export const DATA = {
     //   icon: <FilePlus />,
     //   items: [
     //     { title: "Encounters", url: "/auth/patient-encounters" },
-    //     { title: "Create Encounter", url: "/auth/patient-encounters/create" },
+    //     { title: "Create Encounter", url: "/auth/patient-encounters/new" },
     //   ],
     // },
   ],

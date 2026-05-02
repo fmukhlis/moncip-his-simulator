@@ -110,25 +110,53 @@ enum EncounterStatus {
   COMPLETED
 }
 
-enum OrderPriority {
+enum OrderableServiceType {
+  PANEL
+  SINGLE
+}
+
+enum LabOrderPriority {
   ROUTINE
   STAT
 }
 
 enum LabOrderStatus {
-  DRAFT
   SUBMITTED
+  PARTIALLY_RESULTED
+  RESULTED
   CANCELLED
+}
+
+enum LabOrderIntegrationStatus {
+  PENDING
+  SENT
+  ACKNOWLEDGED
+  FAILED
 }
 
 enum LabOrderItemStatus {
-  ACTIVE
+  ORDERED
+  RESULTED
   CANCELLED
 }
 
-enum OrderableType {
-  SINGLE
-  PANEL
+enum LabResultReportStatus {
+  PRELIMINARY
+  FINAL
+  CORRECTED
+}
+
+enum LabResultValueType {
+  NUMERIC
+  TEXT
+  QUALITATIVE
+}
+
+enum LabResultAbnormalFlag {
+  LOW
+  HIGH
+  ABNORMAL
+  CRITICAL
 }
 
 model Patient {
@@ -169,14 +197,15 @@ model Provider {
 }
 
 model Unit {
-  id         String      @id @default(cuid(2))
-  code       String      @unique
-  name       String
-  isActive   Boolean     @default(true)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id          String      @id @default(cuid(2))
+  code        String      @unique
+  name        String
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  encounters Encounter[]
+  labOrders   LabOrder[]
+  encounters  Encounter[]
 }
 
 model Encounter {
@@ -214,52 +243,90 @@ model EncounterCounter {
 }
 
 model OrderableService {
-  id                String            @id @default(cuid(2))
+  id                  String                  @id @default(cuid(2))
 
-  code              String            @unique
-  name              String
-  type              OrderableType     
-  price             Decimal?          @db.Decimal(12, 2)
-  category          String
-  description       String?
+  code                String                  @unique
+  name                String
+  type                OrderableServiceType     
+  price               Decimal?                @db.Decimal(12, 2)
+  category            String
+  description         String?
 
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  deletedAt         DateTime?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  deletedAt           DateTime?
 
-  labOrderItems     LabOrderItem[]
+  labOrderItems       LabOrderItem[]
+  panelComponents     OrderableServiceComponent[] @relation("PanelComponents")
+  componentOfPanels   OrderableServiceComponent[] @relation("PanelComponentItem")
+}
+
+model OrderableServiceComponent {
+  id                      String                @id @default(cuid(2))
+  panelServiceId          String
+  componentServiceId      String
+
+  panelService            OrderableService      @relation("PanelComponents", fields: [panelServiceId], references: [id], onDelete: Cascade)
+  componentService        OrderableService      @relation("PanelComponentItem", fields: [componentServiceId], references: [id], onDelete: Restrict)
+
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  @@unique([panelServiceId, componentServiceId])
+  @@index([panelServiceId])
+  @@index([componentServiceId])
 }
 
 model LabOrder {
-  id                 String          @id @default(cuid(2))
-  userId             String
-  patientId          String
-  encounterId        String
-  orderingProviderId String
+  id                          String                     @id @default(cuid(2))
+  unitId                      String?
+  userId                      String
+  patientId                   String
+  encounterId                 String
+  orderingProviderId          String
 
-  no                 String          
-  period             String
-  status             LabOrderStatus  @default(DRAFT)
-  priority           OrderPriority   @default(ROUTINE)
-  sequence           Int
-  clinicalNote       String?
-  
-  orderedAt          DateTime        @default(now())
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  deletedAt          DateTime?
+  no                          String          
+  period                      String
+  status                      LabOrderStatus             @default(SUBMITTED)
+  priority                    LabOrderPriority           @default(ROUTINE)
+  sequence                    Int
+  lisOrderId                  String?
+  cancelReason                String?
+  clinicalNote                String?
+  sourceSystem                String                     @default("HIS")
+  unitNameSnapshot            String?
+  integrationStatus           LabOrderIntegrationStatus  @default(SENT)
+  lastIntegrationError        String?
+  lisFillerOrderNumber        String?
+  providerNameSnapshot        String
+  patientFullNameSnapshot     String
+  patientMrnNumberSnapshot    Int
 
-  user               User            @relation(fields: [userId], references: [id])
-  items              LabOrderItem[]
-  patient            Patient         @relation(fields: [patientId], references: [id])
-  encounter          Encounter       @relation(fields: [encounterId], references: [id])
-  orderingProvider   Provider        @relation(fields: [orderingProviderId], references: [id])
+  createdAt                   DateTime                   @default(now())
+  orderedAt                   DateTime                   @default(now())
+  updatedAt                   DateTime                   @updatedAt
+  cancelledAt                 DateTime?
+  sentToLisAt                 DateTime?
+  lastSentAttemptAt           DateTime?
+  lisAcknowledgedAt           DateTime?
+
+  user                        User                       @relation(fields: [userId], references: [id])
+  unit                        Unit?                      @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  items                       LabOrderItem[]
+  patient                     Patient                    @relation(fields: [patientId], references: [id])
+  encounter                   Encounter                  @relation(fields: [encounterId], references: [id])
+  resultReports               LabResultReport[]
+  orderingProvider            Provider                   @relation(fields: [orderingProviderId], references: [id])
 
   @@unique([userId, no])
-  @@index([userId, patientId])
-  @@index([userId, encounterId])
-  @@index([userId, status])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
   @@index([orderedAt])
+  @@index([patientId])
+  @@index([encounterId])
+  @@index([integrationStatus])
+  @@index([orderingProviderId])
 }
 
 model LabOrderCounter {
@@ -273,17 +340,77 @@ model LabOrderItem {
   labOrderId            String
   orderableServiceId    String
 
-  status                LabOrderItemStatus @default(ACTIVE)
-  priceSnapshot         Decimal?           @db.Decimal(12, 2)
-  orderableCodeSnapshot String
-  orderableNameSnapshot String
-  
+  status                LabOrderItemStatus @default(ORDERED)
+  lisItemId             String?
+  lisTestCode           String?
+  cancelReason          String?
+  snapshotCode          String
+  snapshotName          String
+  snapshotPrice         Decimal?           @db.Decimal(12, 2)
+  snapshotCategory      String
+
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
+  cancelledAt           DateTime?
+  resultReceivedAt      DateTime?
 
   labOrder              LabOrder           @relation(fields: [labOrderId], references: [id], onDelete: Cascade)
+  resultItems           LabResultItem[]
   orderableService      OrderableService   @relation(fields: [orderableServiceId], references: [id])
-
+  
+  @@unique([labOrderId, orderableServiceId])
+  @@index([status])
   @@index([labOrderId])
   @@index([orderableServiceId])
+}
+
+model LabResultReport {
+  id                          String                @id @default(cuid(2))
+  labOrderId                  String
+
+  status                      LabResultReportStatus
+  reportText                  String?
+  lisReportId                 String?
+  reportNumber                String?               @unique
+  performingLabNameSnapshot   String?
+
+  createdAt                   DateTime              @default(now())
+  updatedAt                   DateTime              @updatedAt
+  releasedAt                  DateTime?
+
+  labOrder                    LabOrder              @relation(fields: [labOrderId], references: [id], onDelete: Cascade)
+  resultItems                 LabResultItem[]
+
+  @@index([status])
+  @@index([labOrderId])
+  @@index([releasedAt])
+}
+
+model LabResultItem {
+  id                            String                       @id @default(cuid(2))
+  labOrderItemId                String
+  labResultReportId             String
+
+  valueType                     LabResultValueType
+  valueText                     String?
+  abnormalFlag                  LabResultAbnormalFlag?
+  valueNumeric                  Decimal?                     @db.Decimal(18, 4)
+  unitSnapshot                  String?
+  resultStatus                  LabResultReportStatus
+  lisResultItemId               String?
+  testCodeSnapshot              String
+  testNameSnapshot              String
+  referenceRangeSnapshot        String?
+
+  createdAt                     DateTime                     @default(now())
+  updatedAt                     DateTime                     @updatedAt
+  observedAt                    DateTime?
+  releasedAt                    DateTime?
+
+  labOrderItem                  LabOrderItem                 @relation(fields: [labOrderItemId], references: [id], onDelete: Cascade)
+  labResultReport               LabResultReport              @relation(fields: [labResultReportId], references: [id], onDelete: Cascade)
+
+  @@index([resultStatus])
+  @@index([labOrderItemId])
+  @@index([labResultReportId])
 }

@@ -2,7 +2,6 @@
 
 import { type ReactNode, createContext, useState, useContext } from "react"
 import { useStore } from "zustand"
-
 import { type SearchPatientsStore, createSearchPatientsStore } from "@/stores/search-patients-store"
 
 export type SearchPatientsStoreApi = ReturnType<typeof createSearchPatientsStore>
@@ -23,6 +22,5 @@ export const useSearchPatientsStore = <T,>(selector: (store: SearchPatientsStore
   if (!searchPatientsStoreContext) {
     throw new Error(`useSearchPatientsStore must be used within SearchPatientsStoreProvider`)
   }
-
   return useStore(searchPatientsStoreContext, selector)
 }

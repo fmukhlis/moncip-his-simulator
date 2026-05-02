@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -12,12 +12,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getCreateEncounterActionOptions } from "@/features/patient-context/api/mutation"
-import {
-  getGetEncounterProvidersActionOptions,
-  getGetEncounterUnitsActionOptions,
-} from "@/features/patient-context/api/query"
-import { CreateEncounterActionSchema } from "@/features/patient-context/schema"
+import { getCreateEncounterActionOptions } from "@/features/encounter/encounter.api"
+import { CreateEncounterActionSchema } from "@/features/encounter/encounter.validation"
+import { Provider } from "@/features/provider/provider.type"
+import { Unit } from "@/features/unit/unit.type"
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
 import { Spinner } from "../ui/spinner"
@@ -35,10 +33,15 @@ const coverageTypeOptions = [
   { value: "INSURANCE", label: "Insurance" },
 ]
 
-export function CreateEncounterForm({ patientId }: { patientId: string }) {
-  const { data: encounterUnits } = useQuery(getGetEncounterUnitsActionOptions())
-  const { data: encounterProviders } = useQuery(getGetEncounterProvidersActionOptions())
-
+export function CreateEncounterForm({
+  patientId,
+  availableUnits,
+  availableProviders,
+}: {
+  patientId: string
+  availableUnits: Unit[]
+  availableProviders: Provider[]
+}) {
   const mutation = useMutation(getCreateEncounterActionOptions())
 
   const form = useForm({
@@ -123,20 +126,11 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
                   control={control}
                 />
                 <Field>
-                  <FieldLabel htmlFor="encounter-status">Status</FieldLabel>
-                  <Input id="encounter-status" value="ACTIVE" readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="encounter-datetime">Encounter Date &amp; Time</FieldLabel>
-                  <Input id="encounter-datetime" value="Automatically assigned on create" readOnly />
-                </Field>
-                <Field>
                   <FieldLabel htmlFor="encounter-number">Encounter Number</FieldLabel>
-                  <Input id="encounter-number" value="Automatically generated after save" readOnly />
+                  <Input id="encounter-number" value="Automatically generated after save" disabled />
                 </Field>
               </FieldGroup>
             </FieldSet>
-
             <FieldSet>
               <FieldLegend variant="label">Care Context</FieldLegend>
               <FieldDescription>Basic care location and provider assignment.</FieldDescription>
@@ -153,7 +147,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
                           <SelectValue placeholder="Select unit" />
                         </SelectTrigger>
                         <SelectContent>
-                          {encounterUnits?.map((unit) => (
+                          {availableUnits?.map((unit) => (
                             <SelectItem key={unit.id} value={unit.id}>
                               {unit.name}
                             </SelectItem>
@@ -178,7 +172,7 @@ export function CreateEncounterForm({ patientId }: { patientId: string }) {
                           <SelectValue placeholder="Select provider" />
                         </SelectTrigger>
                         <SelectContent>
-                          {encounterProviders?.map((provider) => (
+                          {availableProviders?.map((provider) => (
                             <SelectItem key={provider.id} value={provider.id}>
                               {provider.name}
                             </SelectItem>

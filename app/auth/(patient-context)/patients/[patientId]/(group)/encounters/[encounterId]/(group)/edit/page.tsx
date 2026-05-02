@@ -1,18 +1,16 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { getQueryClient } from "@/app/get-query-client"
 import { EditEncounterForm } from "@/components/edit-encounter/edit-encounter-form"
 import PatientSummary from "@/components/edit-encounter/patient-summary"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
-import {
-  getCachedGetEncounterDetailActionOptions,
-  getGetEncounterProvidersActionOptions,
-  getGetEncounterUnitsActionOptions,
-} from "@/features/patient-context/api/query"
+import { getGetEncounterDetailActionOptions } from "@/features/encounter/encounter.api"
+import { getGetPatientDetailActionOptions } from "@/features/patient/patient.api"
+import { getGetProvidersActionOptions } from "@/features/provider/provider.api"
+import { getGetUnitsActionOptions } from "@/features/unit/unit.api"
 
 export default async function EditEncounter({
   params,
@@ -23,14 +21,20 @@ export default async function EditEncounter({
 
   const queryClient = getQueryClient()
 
-  const encounter = await queryClient.fetchQuery(getCachedGetEncounterDetailActionOptions({ encounterId, patientId }))
+  const patient = await queryClient.fetchQuery(getGetPatientDetailActionOptions({ patientId }))
 
-  if (encounter && encounter.status !== "ACTIVE") {
+  const encounter = await queryClient.fetchQuery(getGetEncounterDetailActionOptions({ id: encounterId, patientId }))
+
+  if (!encounter || !patient) {
+    notFound()
+  }
+
+  if (encounter.status !== "ACTIVE") {
     redirect(`/auth/patients/${patientId}/encounters/${encounterId}`)
   }
 
-  await queryClient.fetchQuery(getGetEncounterUnitsActionOptions())
-  await queryClient.fetchQuery(getGetEncounterProvidersActionOptions())
+  const unitsData = await queryClient.fetchQuery(getGetUnitsActionOptions({ search: "", status: "ALL" }))
+  const providersData = await queryClient.fetchQuery(getGetProvidersActionOptions({ search: "", status: "ALL" }))
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -53,8 +57,13 @@ export default async function EditEncounter({
             </div>
           </CardHeader>
         </Card>
-        <PatientSummary patientId={patientId} />
-        <EditEncounterForm patientId={patientId} encounterId={encounterId} />
+        <PatientSummary patient={patient} />
+        <EditEncounterForm
+          encounter={encounter}
+          patientId={patientId}
+          availableUnits={unitsData.items}
+          availableProviders={providersData.items}
+        />
       </div>
     </HydrationBoundary>
   )

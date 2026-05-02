@@ -4,8 +4,7 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { CalendarClock, Hospital, MoreHorizontal, Stethoscope } from "lucide-react"
 import Link from "next/link"
-
-import { getPatientEncountersAction } from "@/features/patient-context/actions/query"
+import { Encounter } from "@/features/encounter/encounter.type"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
@@ -20,7 +19,6 @@ function getStatusBadge(status: string) {
   if (status === "ACTIVE") {
     return <Badge className="hover:bg-emerald-90 w-[85px] bg-emerald-100 text-emerald-700">Active</Badge>
   }
-
   if (status === "COMPLETED") {
     return (
       <Badge variant="secondary" className="w-[85px]">
@@ -28,15 +26,12 @@ function getStatusBadge(status: string) {
       </Badge>
     )
   }
-
   return (
     <Badge variant="destructive" className="w-[85px]">
       Cancelled
     </Badge>
   )
 }
-
-type Encounter = Awaited<ReturnType<typeof getPatientEncountersAction>>["data"]["items"][number]
 
 const columnHelper = createColumnHelper<Encounter>()
 

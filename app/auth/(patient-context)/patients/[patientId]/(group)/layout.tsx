@@ -7,7 +7,7 @@ import { PatientContextSidebar } from "@/components/patient-context-sidebar"
 import ThemeToggler from "@/components/theme-toggler"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
+import { getGetPatientDetailActionOptions } from "@/features/patient/patient.api"
 import { DataProps } from "@/lib/navigation-data"
 
 function generateSidebarData(patientId: string) {
@@ -46,7 +46,7 @@ export default async function PatientContextLayout({
   return (
     <SidebarProvider>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <PatientContextSidebar DATA={DATA} />
+        <PatientContextSidebar DATA={DATA} patient={patient} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
             <div className="flex w-full items-center gap-2 px-4">

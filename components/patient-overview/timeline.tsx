@@ -76,7 +76,7 @@ export function Timeline() {
         <CardTitle className="font-semibold">Timeline</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {data.length === 0 || true ? (
+        {data.length === 0 ? (
           <section className="space-y-3">
             <div className="space-y-2">
               <div className="flex gap-3">

@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
-import { getCancelEncounterActionOptions } from "@/features/patient-context/api/mutation"
+import { getCancelEncounterActionOptions } from "@/features/encounter/encounter.api"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,20 +17,14 @@ import {
 import { Button } from "../ui/button"
 import { Spinner } from "../ui/spinner"
 
-export default function CancelEncounterAlertDialog({
-  patientId,
-  encounterId,
-}: {
-  patientId: string
-  encounterId: string
-}) {
+export default function CancelEncounterAlertDialog({ id, patientId }: { id: string; patientId: string }) {
   const [open, setOpen] = useState(false)
 
   const mutation = useMutation(getCancelEncounterActionOptions())
 
   const handleCancelEncounter = async () => {
     try {
-      await mutation.mutateAsync({ encounterId, patientId })
+      await mutation.mutateAsync({ id, patientId })
       setOpen(false)
       toast.success("Encounter cancelled successfully")
     } catch (err) {

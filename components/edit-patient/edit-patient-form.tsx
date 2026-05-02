@@ -1,16 +1,17 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { format, startOfDay } from "date-fns"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import z from "zod"
-import { getUpdatePatientActionOptions } from "@/features/patient-context/api/mutation"
-import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
-import { UpdatePatientActionSchema } from "@/features/patient-context/schema"
+import { getUpdatePatientActionOptions } from "@/features/patient/patient.api"
+import { PatientDetail } from "@/features/patient/patient.type"
+import { UpdatePatientActionSchema } from "@/features/patient/patient.validation"
 import { Button } from "../ui/button"
 import { Calendar } from "../ui/calendar"
 import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
@@ -19,19 +20,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Spinner } from "../ui/spinner"
 
-export default function EditPatientForm({ patientId }: { patientId: string }) {
-  const { data: patient } = useQuery(getGetPatientDetailActionOptions({ patientId }))
-
-  if (!patient) {
-    return <></>
-  }
-
+export default function EditPatientForm({ patient }: { patient: PatientDetail }) {
   const mutation = useMutation(getUpdatePatientActionOptions())
 
   const form = useForm({
     resolver: zodResolver(UpdatePatientActionSchema),
     defaultValues: {
-      patientId,
+      patientId: patient.id,
       fullName: patient.fullName,
       sex: patient.sex,
       address: patient.address ?? "",
@@ -52,7 +47,7 @@ export default function EditPatientForm({ patientId }: { patientId: string }) {
     try {
       await mutation.mutateAsync(data)
       toast.success("Patient updated successfully")
-      router.replace(`/auth/patients/${patientId}/overview`)
+      router.replace(`/auth/patients/${patient.id}/overview`)
     } catch (err) {
       if (err instanceof Error) {
         toast.error("Something went wrong", { description: err.message })
@@ -278,14 +273,8 @@ export default function EditPatientForm({ patientId }: { patientId: string }) {
         </FieldSet>
         <Field className="col-span-1">
           <div className="flex flex-col justify-end gap-2 sm:flex-row">
-            <Button
-              type="button"
-              variant="outline"
-              className="sm:w-[150px]"
-              onClick={() => router.push(`/auth/patients/${patientId}/overview`)}
-              disabled={mutation.isPending}
-            >
-              Cancel
+            <Button asChild type="button" variant="outline" className="sm:w-[150px]" disabled={mutation.isPending}>
+              <Link href={`/auth/patients/${patient.id}/overview`}>Cancel</Link>
             </Button>
             <Button type="submit" disabled={mutation.isPending} className="sm:w-[150px]">
               {mutation.isPending ? <Spinner className="size-5" /> : "Save Changes"}

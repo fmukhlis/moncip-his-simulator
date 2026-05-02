@@ -1,6 +1,7 @@
+"use client"
+
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
-
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 
 export function PatientSidebarHeader() {

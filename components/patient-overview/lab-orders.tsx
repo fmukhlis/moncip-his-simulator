@@ -1,27 +1,124 @@
-import { ExternalLink, MoveDown, MoveRight, Plus } from "lucide-react"
+import { Plus, View } from "lucide-react"
+import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "../ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { LabOrder } from "@/features/lab-order/lab-order.type"
+import { LabOrderPriority, LabOrderStatus } from "@/generated/prisma/enums"
+import ClientDateTimeText from "../ui/client-date-time-text"
 
-export function LabOrders() {
+function getOrderStatusBadge(status: LabOrderStatus) {
+  if (status === "SUBMITTED")
+    return (
+      <Badge variant="outline" className="bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
+        {status}
+      </Badge>
+    )
+  if (status === "PARTIALLY_RESULTED")
+    return (
+      <Badge variant="outline" className="bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+        {status}
+      </Badge>
+    )
+  if (status === "RESULTED")
+    return (
+      <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+        {status}
+      </Badge>
+    )
+  if (status === "CANCELLED")
+    return (
+      <Badge variant="outline" className="bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+        {status}
+      </Badge>
+    )
+}
+
+function getOrderPriorityBadge(status: LabOrderPriority) {
+  if (status === "ROUTINE") return <Badge variant="outline">{status}</Badge>
+  if (status === "STAT")
+    return (
+      <Badge variant="outline" className="bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+        {status}
+      </Badge>
+    )
+}
+
+export function LabOrders({
+  labOrders,
+  patientId,
+  canAddNewOrder,
+}: {
+  labOrders: LabOrder[]
+  patientId: string
+  canAddNewOrder: boolean
+}) {
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
-        <CardTitle className="font-semibold">Lab Orders</CardTitle>
-        <CardAction>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size={"xs"}>
-              <ExternalLink className="size-3.5" />
-              View Details
-            </Button>
-            <Button size={"xs"} variant={"outline"}>
-              <Plus />
-              Order Lab
-            </Button>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-1">
+            <CardTitle>Orders</CardTitle>
+            <CardDescription> View orders associated with the current encounter.</CardDescription>
           </div>
-        </CardAction>
+          {labOrders.length && (
+            <div className="flex flex-wrap gap-2">
+              <Button variant="default" asChild>
+                <Link href={`/auth/patients/${patientId}/lab-orders/new`}>
+                  <Plus />
+                  New Order
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
       </CardHeader>
-      {true ? (
+      {labOrders.length ? (
+        <CardContent>
+          <div className="border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead>Ordering Provider</TableHead>
+                  <TableHead>Ordered At</TableHead>
+                  <TableHead className="text-center">Priority</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {labOrders.map((labOrder) => (
+                  <TableRow key={labOrder.id}>
+                    <TableCell>
+                      <div className="font-medium">{labOrder.no}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div>{labOrder.unitNameSnapshot}</div>
+                    </TableCell>
+                    <TableCell className="text-center">{getOrderStatusBadge(labOrder.status)}</TableCell>
+                    <TableCell>{labOrder.orderingProvider.name}</TableCell>
+                    <TableCell>
+                      <ClientDateTimeText formatStr="dd MMM yyyy, HH:mm" dateTime={labOrder.orderedAt} />
+                    </TableCell>
+                    <TableCell className="text-center">{getOrderPriorityBadge(labOrder.priority)}</TableCell>
+                    <TableCell className="text-center">
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/auth/patients/${patientId}/lab-orders/${labOrder.id}`}>
+                          <View className="size-4" />
+                          <span className="sr-only">View</span>
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      ) : (
         <CardContent>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col items-start gap-1">
@@ -31,82 +128,18 @@ export function LabOrders() {
               <p className="flex items-center gap-1">
                 <span>Order labs to track diagnostics and results for this visit.</span>
               </p>
-              <Button className="mt-2 flex items-center gap-2" disabled>
-                <Plus className="size-4" /> Order First Lab
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      ) : (
-        <CardContent>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <p className="border-b pb-2 font-semibold">Pending (2)</p>
-              <ul className="flex flex-col gap-1">
-                <li className="flex items-center gap-1">
-                  <div className="mr-5 min-w-0 truncate">CBC Panel</div>
-                  <div className="ml-auto w-[100px] shrink-0">24 Mar 10:40</div>
-                  <Badge className="w-[80px] shrink-0 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
-                    Pending
-                  </Badge>
-                </li>
-                <li className="flex items-center gap-1">
-                  <div className="mr-5 min-w-0 truncate">Lipid Panel</div>
-                  <div className="ml-auto w-[100px] shrink-0">24 Mar 10:42</div>
-                  <Badge className="w-[80px] shrink-0 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
-                    Pending
-                  </Badge>
-                </li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <p className="border-b pb-2 font-semibold">Completed (2)</p>
-              <ul className="flex flex-col gap-1">
-                <li className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1">
-                    <div className="mr-5 min-w-0 truncate">Glucose Test</div>
-                    <div className="ml-auto w-[100px] shrink-0">23 Mar 09:12</div>
-                    <Badge className="w-[80px] shrink-0 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                      Completed
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(175px,1fr))] gap-2">
-                    <div className="flex items-center gap-2">
-                      <MoveRight className="ml-2 size-3" />
-                      <span>Result :</span>
-                      <span className="w-[100px]">140 mg/dL</span>
-                    </div>
-                    <div className="col-span-2 flex gap-2">
-                      <div className="w-[65px]"></div>
-                      <span>(Normal: 100 - 150)</span>
-                    </div>
-                  </div>
-                </li>
-                <li className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1">
-                    <div className="mr-5 min-w-0 truncate">Hemoglobin</div>
-                    <div className="ml-auto w-[100px] shrink-0">23 Mar 09:15</div>
-                    <Badge className="w-[80px] shrink-0 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                      Completed
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(175px,1fr))] gap-2">
-                    <div className="flex items-center gap-2">
-                      <MoveRight className="ml-2 size-3" />
-                      <span>Result :</span>
-                      <span className="w-[100px]">11.2 g/dL</span>
-                    </div>
-                    <div className="col-span-2 flex gap-2">
-                      <Badge variant={"destructive"} className="w-[65px]">
-                        <MoveDown className="size-3" />
-                        <span>Low</span>
-                      </Badge>
-                      <span>(Normal: 13 - 17)</span>
-                    </div>
-                  </div>
-                </li>
-              </ul>
+              {labOrders.length === 0 &&
+                (canAddNewOrder ? (
+                  <Button className="mt-2 flex items-center gap-2" asChild>
+                    <Link href={`/auth/patients/${patientId}/lab-orders/new`}>
+                      <Plus className="size-4" /> Order First Lab
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button className="mt-2 flex items-center gap-2" disabled>
+                    <Plus className="size-4" /> Order First Lab
+                  </Button>
+                ))}
             </div>
           </div>
         </CardContent>

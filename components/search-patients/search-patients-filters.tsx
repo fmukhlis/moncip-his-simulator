@@ -1,9 +1,10 @@
 "use client"
 
-import { format } from "date-fns"
+import { format, parse } from "date-fns"
 import { X } from "lucide-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
-import { useSearchPatientsStore } from "@/providers/search-patients-store-provider"
+import { useDebouncedCallback } from "use-debounce"
 import { Button } from "../ui/button"
 import { Calendar } from "../ui/calendar"
 import { Field, FieldGroup, FieldLabel } from "../ui/field"
@@ -11,9 +12,44 @@ import { Input } from "../ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 
 export default function SearchPatientsFilters() {
-  const { filters, setFilters } = useSearchPatientsStore((state) => state)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const birthDateString = searchParams.get("birthDate")
+
+  const [filters, setFilters] = useState(() => ({
+    page: searchParams.get("page") ?? "1",
+    fullName: searchParams.get("fullName") ?? "",
+    birthDate: birthDateString ? parse(birthDateString, "yyyy-MM-dd", new Date()) : undefined,
+    mrnNumber: searchParams.get("mrnNumber") ?? "",
+    nationalId: searchParams.get("nationalId") ?? "",
+  }))
 
   const [birthDateCalendarOpen, setBirthDateCalendarOpen] = useState(false)
+
+  function updateUrl(next: Record<string, string | string[] | null>) {
+    const params = new URLSearchParams(searchParams.toString())
+
+    for (const [key, value] of Object.entries(next)) {
+      params.delete(key)
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          params.append(key, v)
+        }
+      } else {
+        if (value) {
+          params.append(key, value)
+        }
+      }
+    }
+
+    router.replace(`${pathname}?${params.toString()}`)
+  }
+
+  const debounced = useDebouncedCallback((value: Partial<Omit<typeof filters, "birthDate" | "page">>) => {
+    updateUrl({ ...value })
+  }, 1000)
 
   return (
     <FieldGroup className="gap-3">
@@ -25,7 +61,8 @@ export default function SearchPatientsFilters() {
               id="search-patients-national-id"
               value={filters.nationalId}
               onChange={(e) => {
-                setFilters({ nationalId: e.target.value })
+                setFilters((prev) => ({ ...prev, nationalId: e.target.value }))
+                debounced({ nationalId: e.target.value })
               }}
               placeholder="16 digit national ID"
             />
@@ -38,9 +75,10 @@ export default function SearchPatientsFilters() {
               id="search-patients-mrn"
               value={filters.mrnNumber}
               onChange={(e) => {
-                setFilters({ mrnNumber: e.target.value })
+                setFilters((prev) => ({ ...prev, mrnNumber: e.target.value }))
+                debounced({ mrnNumber: e.target.value })
               }}
-              placeholder="Enter patient's mrn"
+              placeholder="Please only use numbers"
             />
           </div>
         </Field>
@@ -53,7 +91,8 @@ export default function SearchPatientsFilters() {
             value={filters.fullName}
             required
             onChange={(e) => {
-              setFilters({ fullName: e.target.value })
+              setFilters((prev) => ({ ...prev, fullName: e.target.value }))
+              debounced({ fullName: e.target.value })
             }}
             placeholder="Enter patient's full name"
           />
@@ -74,7 +113,11 @@ export default function SearchPatientsFilters() {
                   defaultMonth={filters.birthDate instanceof Date ? filters.birthDate : undefined}
                   captionLayout="dropdown"
                   onSelect={(birthDate) => {
-                    setFilters({ birthDate })
+                    setFilters((prev) => ({ ...prev, birthDate }))
+                    debounced.cancel()
+                    updateUrl({
+                      birthDate: birthDate ? format(birthDate, "yyyy-MM-dd") : "",
+                    })
                     setBirthDateCalendarOpen(false)
                   }}
                 />
@@ -84,8 +127,17 @@ export default function SearchPatientsFilters() {
           <Button
             onClick={() => {
               setFilters({
+                page: "1",
                 fullName: "",
                 birthDate: undefined,
+                mrnNumber: "",
+                nationalId: "",
+              })
+              debounced.cancel()
+              updateUrl({
+                page: "1",
+                fullName: "",
+                birthDate: null,
                 mrnNumber: "",
                 nationalId: "",
               })

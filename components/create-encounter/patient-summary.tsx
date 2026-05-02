@@ -1,36 +1,16 @@
-"use client"
-
-import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { useEffect, useState } from "react"
-import { getGetPatientDetailActionOptions } from "@/features/patient-context/api/query"
-import { formatAge } from "@/lib/utils"
+import { PatientDetail } from "@/features/patient/patient.type"
 import { Badge } from "../ui/badge"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Field, FieldLabel } from "../ui/field"
-import { Input } from "../ui/input"
+import ClientAgeText from "../ui/client-age-text"
+import ClientDateTimeText from "../ui/client-date-time-text"
+import { Item, ItemContent, ItemDescription, ItemTitle } from "../ui/item"
 
 const GENDER_LABEL = {
   M: "Male",
   F: "Female",
 }
 
-export default function PatientSummary({ patientId }: { patientId: string }) {
-  const { data: patient } = useQuery(getGetPatientDetailActionOptions({ patientId }))
-
-  const [patientAge, setPatientAge] = useState("")
-  const [patientBirthDate, setPatientBirthDate] = useState("")
-
-  useEffect(() => {
-    const birthDate = patient?.birthDate ? new Date(patient.birthDate) : null
-    setPatientAge(birthDate ? formatAge(birthDate) : "")
-    setPatientBirthDate(birthDate ? format(birthDate, "dd MMM yyyy") : "")
-  }, [setPatientBirthDate, patient?.birthDate, formatAge, format])
-
-  if (!patient) {
-    return <></>
-  }
-
+export default function PatientSummary({ patient }: { patient: PatientDetail }) {
   return (
     <Card>
       <CardHeader>
@@ -42,30 +22,40 @@ export default function PatientSummary({ patientId }: { patientId: string }) {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <Field>
-            <FieldLabel>Name</FieldLabel>
-            <Input value={patient.fullName} readOnly />
-          </Field>
-
-          <Field>
-            <FieldLabel>MRN</FieldLabel>
-            <Input value={`MRN-${patient.mrnNumber.toString().padStart(6, "0")}`} readOnly />
-          </Field>
-
-          <Field>
-            <FieldLabel>Sex</FieldLabel>
-            <Input value={GENDER_LABEL[patient.sex]} readOnly />
-          </Field>
-
-          <Field>
-            <FieldLabel>Birth Date</FieldLabel>
-            <Input value={patientBirthDate} readOnly />
-          </Field>
-
-          <Field>
-            <FieldLabel>Age</FieldLabel>
-            <Input value={patientAge} readOnly />
-          </Field>
+          <Item variant="outline">
+            <ItemContent>
+              <ItemTitle>Name</ItemTitle>
+              <ItemDescription>{patient.fullName}</ItemDescription>
+            </ItemContent>
+          </Item>
+          <Item variant="outline">
+            <ItemContent>
+              <ItemTitle>MRN</ItemTitle>
+              <ItemDescription>MRN-{patient.mrnNumber.toString().padStart(6, "0")}</ItemDescription>
+            </ItemContent>
+          </Item>
+          <Item variant="outline">
+            <ItemContent>
+              <ItemTitle>Sex</ItemTitle>
+              <ItemDescription>{GENDER_LABEL[patient.sex]}</ItemDescription>
+            </ItemContent>
+          </Item>
+          <Item variant="outline">
+            <ItemContent>
+              <ItemTitle>Birth Date</ItemTitle>
+              <ItemDescription>
+                <ClientDateTimeText formatStr="dd MMM yyyy" dateTime={patient.birthDate} />
+              </ItemDescription>
+            </ItemContent>
+          </Item>
+          <Item variant="outline">
+            <ItemContent>
+              <ItemTitle>Age</ItemTitle>
+              <ItemDescription>
+                <ClientAgeText birthDate={patient.birthDate} />
+              </ItemDescription>
+            </ItemContent>
+          </Item>
         </div>
       </CardContent>
     </Card>

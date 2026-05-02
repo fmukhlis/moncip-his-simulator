@@ -1,13 +1,11 @@
 "use client"
 
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
-import { getOrderableServicesAction } from "@/features/orderable-service/actions/query"
+import { OrderableService } from "@/features/orderable-service/orderable-service.type"
 import { formatCurrencyFromDecimalString } from "@/lib/utils"
 import { Badge } from "../ui/badge"
 
-type OrderableServie = Awaited<ReturnType<typeof getOrderableServicesAction>>["data"][number]
-
-const columnHelper = createColumnHelper<OrderableServie>()
+const columnHelper = createColumnHelper<OrderableService>()
 
 export const columns = [
   columnHelper.accessor("code", {
@@ -53,4 +51,4 @@ export const columns = [
     ),
     size: 100,
   }),
-] as ColumnDef<OrderableServie>[]
+] as ColumnDef<OrderableService>[]

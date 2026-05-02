@@ -3,7 +3,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { Ellipsis, Pencil, Trash } from "lucide-react"
 import Link from "next/link"
-
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -18,14 +17,10 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { getDeletePatientActionOptions } from "@/features/patient-context/api/mutation"
+import { getDeletePatientActionOptions } from "@/features/patient/patient.api"
 import { Spinner } from "../ui/spinner"
 
-type PatientActionsMenuProps = {
-  patientId: string
-}
-
-export function PatientActionsMenu({ patientId }: PatientActionsMenuProps) {
+export function PatientActionsMenu({ patientId }: { patientId: string }) {
   const mutation = useMutation(getDeletePatientActionOptions())
 
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -67,8 +62,7 @@ export function PatientActionsMenu({ patientId }: PatientActionsMenuProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
-            onSelect={(e) => {
-              e.preventDefault()
+            onSelect={() => {
               setDeleteOpen(true)
             }}
           >
@@ -91,10 +85,8 @@ export function PatientActionsMenu({ patientId }: PatientActionsMenuProps) {
             <Button
               type="button"
               onClick={async () => {
-                try {
-                  await handleDeletePatient()
-                  setDeleteOpen(false)
-                } catch {}
+                await handleDeletePatient()
+                setDeleteOpen(false)
               }}
               variant="destructive"
               disabled={mutation.isPending}
