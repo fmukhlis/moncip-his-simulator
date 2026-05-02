@@ -12,9 +12,17 @@ export function RedirectNotice() {
   useEffect(() => {
     const notice = searchParams.get("notice")
 
-    if (notice === "existing-encounter") {
-      toast.info("You were redirected to the existing encounter.")
-
+    if (notice) {
+      switch (notice) {
+        case "no-active-encounter":
+          toast.info(
+            "An active encounter is required before creating a lab order. Please select an active encounter or create a new one first."
+          )
+          break
+        case "existing-encounter":
+          toast.info("You were redirected to the existing encounter.")
+          break
+      }
       const params = new URLSearchParams(searchParams.toString())
       params.delete("notice")
 
@@ -23,7 +31,7 @@ export function RedirectNotice() {
 
       router.replace(nextUrl)
     }
-  }, [router, searchParams])
+  }, [router, searchParams, pathname])
 
   return null
 }

@@ -1,13 +1,16 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { getQueryClient } from "@/app/get-query-client"
-import OrderableServicesTable from "@/components/orderable-services/orderable-services-table"
+import { columns } from "@/components/orderable-services/columns"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getGetOrderableServicesActionOptions } from "@/features/orderable-service/apis/query"
+import { ClientTable } from "@/components/ui/client-table"
+import { getGetOrderableServicesActionOptions } from "@/features/orderable-service/orderable-service.api"
 
 export default async function OrderableServiceList() {
   const queryClient = getQueryClient()
 
-  await queryClient.prefetchQuery(getGetOrderableServicesActionOptions())
+  const orderableServices = await queryClient.fetchQuery(
+    getGetOrderableServicesActionOptions({ type: ["PANEL", "SINGLE"], search: "", categories: [], trashed: true })
+  )
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -21,8 +24,8 @@ export default async function OrderableServiceList() {
           </CardHeader>
         </Card>
         <Card className="relative w-full py-4 shadow">
-          <CardContent className="px-4">
-            <OrderableServicesTable />
+          <CardContent className="flex flex-col gap-4 px-4">
+            <ClientTable tableOptions={{ data: orderableServices?.items ?? [], columns }} />
           </CardContent>
         </Card>
       </div>

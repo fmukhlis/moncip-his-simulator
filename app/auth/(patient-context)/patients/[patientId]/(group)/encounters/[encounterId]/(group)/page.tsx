@@ -1,15 +1,18 @@
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
+import { getQueryClient } from "@/app/get-query-client"
 import EncounterCareContextCard from "@/components/encounter-detail/encounter-care-context-card"
 import EncounterClinicalContextCard from "@/components/encounter-detail/encounter-clinical-context-card"
 import EncounterDetailHeader from "@/components/encounter-detail/encounter-detail-header"
 import EncounterLabOrdersCard from "@/components/encounter-detail/encounter-lab-orders-card"
 import EncounterMetadataCard from "@/components/encounter-detail/encounter-metadata-card"
-
 import { RedirectNotice } from "@/components/redirect-notice"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
+import { getGetEncounterDetailActionOptions } from "@/features/encounter/encounter.api"
+import { getGetLabOrdersActionOptions } from "@/features/lab-order/lab-order.api"
 
 export default async function EncounterDetail({
   params,
@@ -17,6 +20,24 @@ export default async function EncounterDetail({
   params: Promise<{ encounterId: string; patientId: string }>
 }) {
   const { encounterId, patientId } = await params
+
+  const queryClient = getQueryClient()
+
+  const encounter = await queryClient.fetchQuery(getGetEncounterDetailActionOptions({ id: encounterId, patientId }))
+
+  if (!encounter) {
+    return <></>
+  }
+
+  const labOrdersInEncounter = await queryClient.fetchQuery(
+    getGetLabOrdersActionOptions({
+      search: "",
+      status: ["SUBMITTED", "RESULTED", "PARTIALLY_RESULTED"],
+      priority: ["STAT", "ROUTINE"],
+      patientId,
+      encounterId: encounter.id,
+    })
+  )
 
   return (
     <>
@@ -42,17 +63,19 @@ export default async function EncounterDetail({
             </div>
           </CardHeader>
         </Card>
-        <EncounterDetailHeader patientId={patientId} encounterId={encounterId} />
-        <div className="grid gap-4 lg:grid-cols-12">
-          <div className="space-y-4 lg:col-span-8">
-            <EncounterCareContextCard encounterId={encounterId} patientId={patientId} />
-            <EncounterLabOrdersCard />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <EncounterDetailHeader encounterId={encounterId} patientId={patientId} />
+          <div className="grid gap-4 lg:grid-cols-12">
+            <div className="space-y-4 lg:col-span-8">
+              <EncounterCareContextCard encounter={encounter} />
+              <EncounterLabOrdersCard labOrders={labOrdersInEncounter.items ?? []} patientId={patientId} />
+            </div>
+            <div className="space-y-4 lg:col-span-4">
+              <EncounterClinicalContextCard encounter={encounter} />
+              <EncounterMetadataCard patientId={patientId} encounterId={encounterId} />
+            </div>
           </div>
-          <div className="space-y-4 lg:col-span-4">
-            <EncounterClinicalContextCard patientId={patientId} encounterId={encounterId} />
-            <EncounterMetadataCard patientId={patientId} encounterId={encounterId} />
-          </div>
-        </div>
+        </HydrationBoundary>
       </div>
     </>
   )

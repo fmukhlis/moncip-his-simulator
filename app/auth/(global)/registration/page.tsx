@@ -1,5 +1,4 @@
-import RegisterPatientForm from "@/components/registration/register-patient-form"
-
+import RegisterPatientForm from "@/components/patient-registration/register-patient-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function Registration() {

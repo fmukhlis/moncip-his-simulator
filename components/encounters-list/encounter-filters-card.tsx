@@ -1,75 +1,90 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Clock3, RotateCcw, Search } from "lucide-react"
+import { Ban, CircleCheckBig, Clock3, House, Loader, LogOut, RotateCcw, Search, Siren } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useDebouncedCallback } from "use-debounce"
-import { getGetEncounterUnitsActionOptions } from "@/features/patient-context/api/query"
+import { getGetUnitsActionOptions } from "@/features/unit/unit.api"
 import { EncounterStatus, EncounterType } from "@/generated/prisma/enums"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 const STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "CANCELLED", label: "Cancelled" },
+  { value: "ACTIVE", label: "Active", icon: <Loader /> },
+  { value: "COMPLETED", label: "Completed", icon: <CircleCheckBig /> },
+  { value: "CANCELLED", label: "Cancelled", icon: <Ban /> },
 ]
 
 const TYPE_OPTIONS = [
-  { value: "ER", label: "Emergency" },
-  { value: "IPD", label: "Inpatient" },
-  { value: "OPD", label: "Outpatient" },
+  { value: "ER", label: "Emergency", icon: <Siren /> },
+  { value: "IPD", label: "Inpatient", icon: <House /> },
+  { value: "OPD", label: "Outpatient", icon: <LogOut /> },
 ]
 
 export default function EncounterFiltersCard({
   filters,
 }: {
   filters: {
-    q: string
-    type: string
-    status: string
+    type: EncounterType[]
+    search: string
+    status: EncounterStatus[]
     unitId: string
+    patientId: string
   }
 }) {
   const [type, setType] = useState(filters.type)
   const [unit, setUnit] = useState(filters.unitId)
   const [status, setStatus] = useState(filters.status)
-  const [searchValue, setSearchValue] = useState(filters.q)
+  const [search, setSearch] = useState(filters.search)
 
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  function updateUrl(next: Record<string, string | null>) {
+  function updateUrl(next: Record<string, string | string[] | null>) {
     const params = new URLSearchParams(searchParams.toString())
 
     for (const [key, value] of Object.entries(next)) {
-      if (!value) {
-        params.delete(key)
+      params.delete(key)
+
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          params.append(key, v)
+        }
       } else {
-        params.set(key, value)
+        if (value) {
+          params.set(key, value)
+        }
       }
     }
 
     router.replace(`${pathname}?${params.toString()}`)
   }
 
-  const { data: units } = useQuery(getGetEncounterUnitsActionOptions())
+  const { data: unitsData } = useQuery(getGetUnitsActionOptions({ search: "", status: "ALL" }))
 
   const handleReset = () => {
     setUnit("")
-    setType("ALL")
-    setStatus("ALL")
-    setSearchValue("")
+    setType(["ER", "IPD", "OPD"])
+    setStatus(["ACTIVE", "COMPLETED", "CANCELLED"])
+    setSearch("")
 
     router.replace(`${pathname}`)
   }
 
   const debounced = useDebouncedCallback((value) => {
-    updateUrl({ q: value })
+    updateUrl({ search: value })
   }, 1000)
 
   return (
@@ -81,12 +96,12 @@ export default function EncounterFiltersCard({
       <CardContent className="space-y-4">
         <InputGroup>
           <InputGroupInput
-            value={searchValue}
+            value={search}
             onChange={(e) => {
-              setSearchValue(e.target.value)
+              setSearch(e.target.value)
               debounced(e.target.value)
             }}
-            placeholder="Search by encounter number, unit, or provider..."
+            placeholder="Search by encounter no or provider..."
           />
           <InputGroupAddon>
             <Search className="text-muted-foreground" />
@@ -100,45 +115,75 @@ export default function EncounterFiltersCard({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
           <div>
             <p className="text-foreground mb-2 text-sm font-medium">Status</p>
-            <Select
-              value={status === "ALL" ? "" : status}
-              onValueChange={(value: EncounterStatus | "ALL") => {
-                setStatus(value)
-                updateUrl({ status: value })
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Status..." />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild className="w-full justify-start">
+                <Button variant="outline">Select statuses...</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="border-b py-2.5">Encounter Statuses</DropdownMenuLabel>
+                  {STATUS_OPTIONS.map(({ icon, label, value }) => (
+                    <DropdownMenuCheckboxItem
+                      key={value}
+                      checked={status.includes(value)}
+                      onCheckedChange={(checked) => {
+                        const selectedStatuses = (
+                          checked ? Array.from(new Set([...status, value])) : status.filter((s) => s !== value)
+                        ) as EncounterStatus[]
+
+                        if (selectedStatuses.length === 0) {
+                          selectedStatuses.push("ACTIVE", "CANCELLED", "COMPLETED")
+                        }
+
+                        setStatus(selectedStatuses)
+                        updateUrl({
+                          status: selectedStatuses,
+                        })
+                      }}
+                    >
+                      {icon}
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div>
             <p className="text-foreground mb-2 text-sm font-medium">Type</p>
-            <Select
-              value={type === "ALL" ? "" : type}
-              onValueChange={(value: EncounterType | "ALL") => {
-                setType(value)
-                updateUrl({ type: value })
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Type..." />
-              </SelectTrigger>
-              <SelectContent>
-                {TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild className="w-full justify-start">
+                <Button variant="outline">Select types...</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="border-b py-2.5">Encounter Types</DropdownMenuLabel>
+                  {TYPE_OPTIONS.map(({ icon, label, value }) => (
+                    <DropdownMenuCheckboxItem
+                      key={value}
+                      checked={type.includes(value)}
+                      onCheckedChange={(checked) => {
+                        const selectedTypes = (
+                          checked ? Array.from(new Set([...type, value])) : type.filter((s) => s !== value)
+                        ) as EncounterType[]
+
+                        if (selectedTypes.length === 0) {
+                          selectedTypes.push("ER", "IPD", "OPD")
+                        }
+
+                        setType(selectedTypes)
+                        updateUrl({
+                          type: selectedTypes,
+                        })
+                      }}
+                    >
+                      {icon}
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div>
             <p className="text-foreground mb-2 text-sm font-medium">Unit</p>
@@ -153,7 +198,7 @@ export default function EncounterFiltersCard({
                 <SelectValue placeholder="Select Unit..." />
               </SelectTrigger>
               <SelectContent>
-                {units?.map((unit) => (
+                {unitsData?.items.map((unit) => (
                   <SelectItem key={unit.id} value={unit.id}>
                     {unit.name}
                   </SelectItem>

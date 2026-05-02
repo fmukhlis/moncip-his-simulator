@@ -1,13 +1,9 @@
-"use client"
-
-import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
 import { ExternalLink, Plus } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { getGetActiveEncounterActionOptions } from "@/features/patient-context/api/query"
+import { Encounter } from "@/features/encounter/encounter.type"
+import ClientDateTimeText from "../ui/client-date-time-text"
 
 const ENCOUNTER_TYPE_LABEL = {
   ER: "Emergency",
@@ -15,15 +11,7 @@ const ENCOUNTER_TYPE_LABEL = {
   OPD: "Outpatient",
 }
 
-export function ActiveEncounter({ patientId }: { patientId: string }) {
-  const { data: activeEncounter } = useQuery(getGetActiveEncounterActionOptions({ patientId }))
-
-  const [encounterDateTime, setEncounterDateTime] = useState<string>("—")
-
-  useEffect(() => {
-    setEncounterDateTime(activeEncounter?.dateTime ? format(activeEncounter.dateTime, "dd MMM yyyy, HH:mm") : "—")
-  }, [activeEncounter?.dateTime])
-
+export function ActiveEncounter({ patientId, activeEncounter }: { patientId: string; activeEncounter?: Encounter }) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -40,7 +28,7 @@ export function ActiveEncounter({ patientId }: { patientId: string }) {
                 <span>This patient is not currently in care.</span>
               </p>
               <Button className="mt-2 flex items-center gap-2" asChild>
-                <Link href={`/auth/patients/${patientId}/encounters/create`}>
+                <Link href={`/auth/patients/${patientId}/encounters/new`}>
                   <Plus className="size-4" /> Create New Encounter
                 </Link>
               </Button>
@@ -62,7 +50,9 @@ export function ActiveEncounter({ patientId }: { patientId: string }) {
                 </div>
                 <div className="flex flex-col gap-1">
                   <p>
-                    <span className="w-[200px]">{encounterDateTime}</span>
+                    <span className="w-[200px]">
+                      <ClientDateTimeText dateTime={activeEncounter.dateTime} formatStr="dd MMM yyyy" />
+                    </span>
                   </p>
                   <p className="flex gap-2">
                     <span className="w-[200px]">{activeEncounter.unit.name}</span>
@@ -80,9 +70,11 @@ export function ActiveEncounter({ patientId }: { patientId: string }) {
             </div>
           </CardContent>
           <CardFooter className="justify-between">
-            <Button disabled>
-              <Plus />
-              Order Lab For This Encounter
+            <Button asChild>
+              <Link href={`/auth/patients/${patientId}/lab-orders/new`}>
+                <Plus />
+                Order Lab For This Encounter
+              </Link>
             </Button>
             <Button asChild>
               <Link href={`/auth/patients/${patientId}/encounters/${activeEncounter.id}`}>

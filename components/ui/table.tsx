@@ -1,5 +1,6 @@
 "use client"
 
+import { RowData } from "@tanstack/react-table"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -70,3 +71,12 @@ function TableCaption({ className, ...props }: React.ComponentProps<"caption">) 
 }
 
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption }
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    headerClassName?: string
+    cellClassName?: string
+  }
+}
+ 

@@ -1,16 +1,15 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import { getCachedGetEncounterDetailActionOptions } from "@/features/patient-context/api/query"
+import { getGetEncounterDetailActionOptions } from "@/features/encounter/encounter.api"
 import { EncounterStatus } from "@/generated/prisma/enums"
 import CancelEncounterAlertDialog from "./cancel-encounter-alert-dialog"
 import CompleteEncounterAlertDialog from "./complete-encounter-alert-dialog"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import ClientDateTimeText from "../ui/client-date-time-text"
 
 function getStatusDescription(status: EncounterStatus) {
   switch (status) {
@@ -34,11 +33,6 @@ function getStatusBadgeVariant(status: EncounterStatus) {
   }
 }
 
-function formatDateTime(date: Date | null) {
-  if (!date) return "Encounter Date & Time"
-  return format(date, "dd MMM yyyy, HH:mm")
-}
-
 const COVERAGE_TYPE_LABEL = {
   SELF_PAY: "Self Pay",
   BPJS: "BPJS",
@@ -52,15 +46,9 @@ const ENCOUNTER_TYPE_LABEL = {
 }
 
 export default function EncounterDetailHeader({ patientId, encounterId }: { patientId: string; encounterId: string }) {
-  const { data } = useQuery(getCachedGetEncounterDetailActionOptions({ patientId, encounterId }))
+  const { data: encounter } = useQuery(getGetEncounterDetailActionOptions({ id: encounterId, patientId }))
 
-  const [encounterDateTime, setEncounterDateTime] = useState<string | undefined>("")
-
-  useEffect(() => {
-    setEncounterDateTime(data?.dateTime)
-  }, [data?.dateTime])
-
-  if (!data) {
+  if (!encounter) {
     return <></>
   }
 
@@ -70,21 +58,21 @@ export default function EncounterDetailHeader({ patientId, encounterId }: { pati
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <CardTitle className="text-xl">{data.no}</CardTitle>
-              <Badge variant={getStatusBadgeVariant(data.status)}>{data.status}</Badge>
+              <CardTitle className="text-xl">Encounter #{encounter.no}</CardTitle>
+              <Badge variant={getStatusBadgeVariant(encounter.status)}>{encounter.status}</Badge>
             </div>
             <CardDescription>
-              {ENCOUNTER_TYPE_LABEL[data.type]} •{" "}
-              {formatDateTime(encounterDateTime ? new Date(encounterDateTime) : null)}
+              {ENCOUNTER_TYPE_LABEL[encounter.type]} •{" "}
+              <ClientDateTimeText formatStr="dd MM yyyy, HH:mm" dateTime={encounter.dateTime} />
             </CardDescription>
           </div>
-          {data.status === "ACTIVE" && (
+          {encounter.status === "ACTIVE" && (
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" asChild>
-                <Link href={`/auth/patients/${patientId}/encounters/${encounterId}/edit`}>Edit Encounter</Link>
+                <Link href={`/auth/patients/${patientId}/encounters/${encounter.id}/edit`}>Edit Encounter</Link>
               </Button>
-              <CompleteEncounterAlertDialog patientId={patientId} encounterId={encounterId} />
-              <CancelEncounterAlertDialog patientId={patientId} encounterId={encounterId} />
+              <CompleteEncounterAlertDialog id={encounter.id} patientId={patientId} />
+              <CancelEncounterAlertDialog id={encounter.id} patientId={patientId} />
             </div>
           )}
         </div>
@@ -93,22 +81,24 @@ export default function EncounterDetailHeader({ patientId, encounterId }: { pati
         <div className="grid gap-4 px-0.5 sm:grid-cols-2 xl:grid-cols-4">
           <div className="space-y-1">
             <p className="text-muted-foreground">Sequence</p>
-            <div className="font-medium">{`#${data.sequence}`}</div>
+            <div className="font-medium">{`#${encounter.sequence}`}</div>
           </div>
           <div className="space-y-1">
             <p className="text-muted-foreground">Coverage Type</p>
-            <div className="font-medium">{COVERAGE_TYPE_LABEL[data.coverageType]}</div>
+            <div className="font-medium">{COVERAGE_TYPE_LABEL[encounter.coverageType]}</div>
           </div>
           <div className="space-y-1">
             <p className="text-muted-foreground">Unit</p>
-            <div className="font-medium">{data.unit.name}</div>
+            <div className="font-medium">{encounter.unit.name}</div>
           </div>
           <div className="space-y-1">
             <p className="text-muted-foreground">Provider</p>
-            <div className="font-medium">{data.provider.name}</div>
+            <div className="font-medium">{encounter.provider.name}</div>
           </div>
         </div>
-        <div className="bg-muted/40 text-muted-foreground border px-3 py-2">{getStatusDescription(data.status)}</div>
+        <div className="bg-muted/40 text-muted-foreground border px-3 py-2">
+          {getStatusDescription(encounter.status)}
+        </div>
       </CardContent>
     </Card>
   )

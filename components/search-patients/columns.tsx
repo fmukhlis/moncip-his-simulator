@@ -4,8 +4,7 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { parseISO } from "date-fns"
 import { Mars, SquareArrowOutUpRight, Venus } from "lucide-react"
 import Link from "next/link"
-
-import { searchPatientsAction } from "@/features/search-patients/actions/query"
+import { Patient } from "@/features/patient/patient.type"
 import { formatAge } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
@@ -25,12 +24,12 @@ const GENDER_LABEL = {
   ),
 }
 
-const columnHelper = createColumnHelper<Awaited<ReturnType<typeof searchPatientsAction>>["data"][number]>()
+const columnHelper = createColumnHelper<Patient>()
 
 export const columns = [
-  columnHelper.accessor("mrn", {
+  columnHelper.accessor("mrnNumber", {
     header: () => <div className="w-full px-1.5">MRN</div>,
-    cell: ({ getValue }) => <div className="w-full px-1.5">{getValue()}</div>,
+    cell: ({ getValue }) => <div className="w-full px-1.5">MRN-{getValue().toString().padStart(6, "0")}</div>,
   }),
   columnHelper.accessor("fullName", {
     header: () => <div className="w-full px-1.5">Full Name</div>,
@@ -71,4 +70,4 @@ export const columns = [
       </div>
     ),
   }),
-] as ColumnDef<Awaited<ReturnType<typeof searchPatientsAction>>["data"][number]>[]
+] as ColumnDef<Patient>[]

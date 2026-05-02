@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -12,13 +12,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getCreateEncounterActionOptions } from "@/features/patient-context/api/mutation"
-import {
-  getCachedGetEncounterDetailActionOptions,
-  getGetEncounterProvidersActionOptions,
-  getGetEncounterUnitsActionOptions,
-} from "@/features/patient-context/api/query"
-import { CreateEncounterActionSchema } from "@/features/patient-context/schema"
+import { getUpdateEncounterActionOptions } from "@/features/encounter/encounter.api"
+import { EncounterDetail } from "@/features/encounter/encounter.type"
+import { UpdateEncounterActionSchema } from "@/features/encounter/encounter.validation"
+import { Provider } from "@/features/provider/provider.type"
+import { Unit } from "@/features/unit/unit.type"
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../ui/field"
 import { Spinner } from "../ui/spinner"
@@ -36,35 +34,42 @@ const coverageTypeOptions = [
   { value: "INSURANCE", label: "Insurance" },
 ]
 
-export function EditEncounterForm({ patientId, encounterId }: { patientId: string; encounterId: string }) {
+export function EditEncounterForm({
+  patientId,
+  encounter,
+  availableUnits,
+  availableProviders,
+}: {
+  patientId: string
+  encounter: EncounterDetail
+  availableUnits: Unit[]
+  availableProviders: Provider[]
+}) {
   const router = useRouter()
 
-  const { data: encounter } = useQuery(getCachedGetEncounterDetailActionOptions({ patientId, encounterId }))
-  const { data: encounterUnits } = useQuery(getGetEncounterUnitsActionOptions())
-  const { data: encounterProviders } = useQuery(getGetEncounterProvidersActionOptions())
-
-  const mutation = useMutation(getCreateEncounterActionOptions())
+  const mutation = useMutation(getUpdateEncounterActionOptions())
 
   const form = useForm({
-    resolver: zodResolver(CreateEncounterActionSchema),
+    resolver: zodResolver(UpdateEncounterActionSchema),
     defaultValues: {
-      type: encounter?.type ?? "",
-      reason: encounter?.reason ?? "",
-      unitId: encounter?.unit.id ?? "",
+      id: encounter.id,
+      type: encounter.type,
+      reason: encounter.reason ?? "",
+      unitId: encounter.unit.id,
       patientId,
-      providerId: encounter?.provider.id ?? "",
-      coverageType: encounter?.coverageType ?? "",
+      providerId: encounter.provider.id,
+      coverageType: encounter.coverageType,
     },
   })
 
   const { control, handleSubmit } = form
 
-  async function onSubmit(data: z.infer<typeof CreateEncounterActionSchema>) {
+  async function onSubmit(data: z.infer<typeof UpdateEncounterActionSchema>) {
     try {
       const res = await mutation.mutateAsync({
         ...data,
       })
-      toast.success("Encounter created successfully")
+      toast.success("Encounter updated successfully")
       router.replace(`/auth/patients/${patientId}/encounters/${res.id}`)
     } catch (err) {
       if (err instanceof Error) {
@@ -92,7 +97,7 @@ export function EditEncounterForm({ patientId, encounterId }: { patientId: strin
             {mutation.isError && (
               <Alert variant="destructive">
                 <AlertCircle />
-                <AlertTitle>Unable to create encounter</AlertTitle>
+                <AlertTitle>Unable to update encounter</AlertTitle>
                 <AlertDescription>{mutation.error.message}</AlertDescription>
               </Alert>
             )}
@@ -126,16 +131,8 @@ export function EditEncounterForm({ patientId, encounterId }: { patientId: strin
                   control={control}
                 />
                 <Field>
-                  <FieldLabel htmlFor="encounter-status">Status</FieldLabel>
-                  <Input id="encounter-status" value="ACTIVE" readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="encounter-datetime">Encounter Date &amp; Time</FieldLabel>
-                  <Input id="encounter-datetime" value="Automatically assigned on create" readOnly />
-                </Field>
-                <Field>
                   <FieldLabel htmlFor="encounter-number">Encounter Number</FieldLabel>
-                  <Input id="encounter-number" value="Automatically generated after save" readOnly />
+                  <Input id="encounter-number" value="Automatically generated after save" disabled />
                 </Field>
               </FieldGroup>
             </FieldSet>
@@ -156,7 +153,7 @@ export function EditEncounterForm({ patientId, encounterId }: { patientId: strin
                           <SelectValue placeholder="Select unit" />
                         </SelectTrigger>
                         <SelectContent>
-                          {encounterUnits?.map((unit) => (
+                          {availableUnits?.map((unit) => (
                             <SelectItem key={unit.id} value={unit.id}>
                               {unit.name}
                             </SelectItem>
@@ -181,7 +178,7 @@ export function EditEncounterForm({ patientId, encounterId }: { patientId: strin
                           <SelectValue placeholder="Select provider" />
                         </SelectTrigger>
                         <SelectContent>
-                          {encounterProviders?.map((provider) => (
+                          {availableProviders?.map((provider) => (
                             <SelectItem key={provider.id} value={provider.id}>
                               {provider.name}
                             </SelectItem>
@@ -252,7 +249,7 @@ export function EditEncounterForm({ patientId, encounterId }: { patientId: strin
                 <Link href={`/auth/patients/${patientId}/encounters`}>Cancel</Link>
               </Button>
               <Button type="submit" className="sm:w-[150px]">
-                {mutation.isPending ? <Spinner className="size-5" /> : "Create Encounter"}
+                {mutation.isPending ? <Spinner className="size-5" /> : "Update Encounter"}
               </Button>
             </div>
           </FieldGroup>

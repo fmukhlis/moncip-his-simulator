@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
-import { getCompleteEncounterActionOptions } from "@/features/patient-context/api/mutation"
+import { getCompleteEncounterActionOptions } from "@/features/encounter/encounter.api"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,20 +17,14 @@ import {
 import { Button } from "../ui/button"
 import { Spinner } from "../ui/spinner"
 
-export default function MarkAsCompletedAlertDialog({
-  patientId,
-  encounterId,
-}: {
-  patientId: string
-  encounterId: string
-}) {
+export default function MarkAsCompletedAlertDialog({ id, patientId }: { id: string; patientId: string }) {
   const [open, setOpen] = useState(false)
 
   const mutation = useMutation(getCompleteEncounterActionOptions())
 
   const handleCompleteEncounter = async () => {
     try {
-      await mutation.mutateAsync({ encounterId, patientId })
+      await mutation.mutateAsync({ id, patientId })
       setOpen(false)
       toast.success("Encounter marked as completed successfully")
     } catch (err) {

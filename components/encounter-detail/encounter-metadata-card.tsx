@@ -1,28 +1,14 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { useEffect, useState } from "react"
-import { getCachedGetEncounterDetailActionOptions } from "@/features/patient-context/api/query"
+import { getGetEncounterDetailActionOptions } from "@/features/encounter/encounter.api"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-
-function formatDateTime(date: Date | null) {
-  if (!date) return "Encounter Date & Time"
-  return format(date, "dd MMM yyyy, HH:mm")
-}
+import ClientDateTimeText from "../ui/client-date-time-text"
 
 export default function EncounterMetadataCard({ patientId, encounterId }: { patientId: string; encounterId: string }) {
-  const { data } = useQuery(getCachedGetEncounterDetailActionOptions({ patientId, encounterId }))
+  const { data: encounter } = useQuery(getGetEncounterDetailActionOptions({ patientId, id: encounterId }))
 
-  const [encounterCreatedAt, setEncounterCreatedAt] = useState<string | undefined>("")
-  const [encounterUpdatedAt, setEncounterUpdatedAt] = useState<string | undefined>("")
-
-  useEffect(() => {
-    setEncounterCreatedAt(data?.createdAt)
-    setEncounterUpdatedAt(data?.updatedAt)
-  }, [data?.createdAt, data?.updatedAt])
-
-  if (!data) {
+  if (!encounter) {
     return <></>
   }
 
@@ -34,15 +20,19 @@ export default function EncounterMetadataCard({ patientId, encounterId }: { pati
       <CardContent className="grid gap-4">
         <div className="space-y-1">
           <p className="text-muted-foreground">Encounter ID</p>
-          <div className="font-medium">{data.id}</div>
+          <div className="font-medium">{encounter.id}</div>
         </div>
         <div className="space-y-1">
           <p className="text-muted-foreground">Created At</p>
-          <div className="font-medium">{formatDateTime(encounterCreatedAt ? new Date(encounterCreatedAt) : null)}</div>
+          <div className="font-medium">
+            <ClientDateTimeText formatStr="dd MMM yyyy, HH:mm" dateTime={encounter.createdAt} />
+          </div>
         </div>
         <div className="space-y-1">
           <p className="text-muted-foreground">Updated At</p>
-          <div className="font-medium">{formatDateTime(encounterUpdatedAt ? new Date(encounterUpdatedAt) : null)}</div>
+          <div className="font-medium">
+            <ClientDateTimeText formatStr="dd MMM yyyy, HH:mm" dateTime={encounter.updatedAt} />
+          </div>
         </div>
       </CardContent>
     </Card>

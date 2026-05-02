@@ -3,7 +3,7 @@
 import Link from "next/link"
 
 import { useParams, usePathname } from "next/navigation"
-import { Fragment } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { generateBreadcrumb } from "@/lib/generate-breadcrumb"
 import { DATA, DataProps } from "@/lib/navigation-data"
 import {
@@ -16,7 +16,11 @@ import {
 } from "./ui/breadcrumb"
 
 export default function AppBreadcrumb({ dynamicSidebarData }: { dynamicSidebarData?: DataProps[] }) {
-  const { patientId, encounterId } = useParams<{ patientId: string; encounterId: string }>()
+  const { patientId, encounterId, labOrderId } = useParams<{
+    patientId: string
+    encounterId: string
+    labOrderId: string
+  }>()
 
   const pathname = usePathname()
 
@@ -25,22 +29,41 @@ export default function AppBreadcrumb({ dynamicSidebarData }: { dynamicSidebarDa
       [
         ...Object.values(DATA).flat(9),
         ...(dynamicSidebarData ? dynamicSidebarData : []),
-
         { title: "Edit Patient", url: `/auth/patients/${patientId}/overview/edit`, icon: <></> },
         {
           title: "Encounters",
           url: `/auth/patients/${patientId}/encounters`,
           icon: <></>,
           items: [
+            { title: "New", url: `/auth/patients/${patientId}/encounters/new ` },
+            { title: "Edit", url: `/auth/patients/${patientId}/encounters/${encounterId}/edit` },
             { title: "Details", url: `/auth/patients/${patientId}/encounters/${encounterId}` },
-            { title: "Create Encounter", url: `/auth/patients/${patientId}/encounters/create` },
+          ],
+        },
+        {
+          title: "Lab. Orders",
+          url: `/auth/patients/${patientId}/lab-orders`,
+          icon: <></>,
+          items: [
+            { title: "New", url: `/auth/patients/${patientId}/lab-orders/new` },
+            { title: "Edit", url: `/auth/patients/${patientId}/lab-orders/${labOrderId}/edit` },
+            { title: "Details", url: `/auth/patients/${patientId}/lab-orders/${labOrderId}` },
           ],
         },
       ],
     ])
   )
 
-  const crumbs = BREADCRUMB_DATA[pathname] ?? []
+  const [crumbs, setCrumbs] = useState<
+    {
+      url: string
+      title: string
+    }[]
+  >([])
+
+  useEffect(() => {
+    setCrumbs(BREADCRUMB_DATA[pathname] ?? [])
+  }, [setCrumbs, pathname])
 
   return (
     <Breadcrumb>
