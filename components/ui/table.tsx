@@ -79,4 +79,3 @@ declare module "@tanstack/react-table" {
     cellClassName?: string
   }
 }
- 
